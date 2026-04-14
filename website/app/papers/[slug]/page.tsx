@@ -708,6 +708,9 @@ export default function PaperPage({ params }: { params: { slug: string } }) {
           }
           .paper-sidebar {
             order: -1;
+            position: static !important;
+            max-height: none !important;
+            overflow-y: visible !important;
           }
         }
       `}</style>

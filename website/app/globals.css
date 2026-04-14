@@ -200,13 +200,17 @@ body {
 /* ============================================================
    TABLE OF CONTENTS
    ============================================================ */
-.toc-nav {
+.paper-sidebar {
   position: sticky;
   top: 80px;
   max-height: calc(100vh - 100px);
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--border) transparent;
+}
+
+.toc-nav {
+  /* no longer sticky itself — parent .paper-sidebar handles it */
 }
 
 .toc-item {
