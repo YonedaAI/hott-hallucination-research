@@ -468,8 +468,9 @@ main = do
   case detectIncoherentPaths "Pythagorean theorem" "a^2+b^2=c^2" path1 path2 of
     Just obs -> do
       putStrLn $ "  DETECTED: " ++ show obs
-      putStrLn "  Interpretation: Two genuinely distinct proof strategies."
-      putStrLn "  Conflating them is a pi_2-level error (no 2-cell connects them)."
+      putStrLn "  Interpretation: Propositional and ByUnivalence are distinct proof"
+      putStrLn "  strategies with no canonical 2-cell connecting them. An LLM that"
+      putStrLn "  treats them as interchangeable hallucinates at the pi_2 level."
     Nothing  -> putStrLn "  OK: Paths are coherent (2-cell exists)."
 
   -- Second: incompatible paths (Propositional vs NoEvidence)

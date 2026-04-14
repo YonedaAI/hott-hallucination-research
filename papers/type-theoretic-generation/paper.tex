@@ -1064,7 +1064,7 @@ verify ctx (Refl a) (PathType t x y) _
   = termEq a x && termEq a y
 verify _ (Hallucinated _) _ _
   = False  -- Always invalid
-verify _ _ _ _ = True
+verify _ _ _ _ = False  -- Unverified: reject by default
 \end{lstlisting}
 
 \subsection{Categorical Attention}
