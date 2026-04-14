@@ -1,0 +1,12 @@
+node_modules/
+.next/
+.vercel/
+*.aux
+*.log
+*.out
+*.toc
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.hi
+*.o

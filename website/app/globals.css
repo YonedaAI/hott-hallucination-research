@@ -1,0 +1,468 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* KaTeX CSS */
+@import 'katex/dist/katex.min.css';
+
+/* ============================================================
+   THEME: HoTT Hallucination Research
+   Domain: Mathematics / Homotopy Type Theory / CS/AI
+   Palette: Void black + categorical purple + theorem amber
+   ============================================================ */
+:root {
+  --bg: #06030f;
+  --surface: #0e0820;
+  --surface-hover: #160c2e;
+  --accent: #a855f7;
+  --accent-hover: #c084fc;
+  --accent-glow: rgba(168, 85, 247, 0.12);
+  --accent-secondary: #f59e0b;
+  --text: #f1eeff;
+  --text-muted: #a89ec0;
+  --text-dim: #6b5f80;
+  --border: rgba(168, 85, 247, 0.2);
+  --code-bg: #0d0819;
+  --success: #22d3ee;
+  --warning: #f59e0b;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ============================================================
+   LAYOUT
+   ============================================================ */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(6, 3, 15, 0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+
+.site-footer {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+}
+
+/* ============================================================
+   HERO SECTION
+   ============================================================ */
+.hero-section {
+  position: relative;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 50% 0%, rgba(168, 85, 247, 0.18) 0%, rgba(6, 3, 15, 0) 70%),
+              radial-gradient(ellipse at 80% 80%, rgba(245, 158, 11, 0.07) 0%, transparent 60%),
+              var(--bg);
+}
+
+.hero-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(168, 85, 247, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(168, 85, 247, 0.06) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse at 50% 0%, rgba(0,0,0,0.8) 0%, transparent 70%);
+}
+
+/* ============================================================
+   PAPER CARDS
+   ============================================================ */
+.paper-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  overflow: hidden;
+}
+
+.paper-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 40px rgba(168, 85, 247, 0.2), 0 0 0 1px rgba(168, 85, 247, 0.35);
+  border-color: rgba(168, 85, 247, 0.5);
+  background: var(--surface-hover);
+}
+
+.part-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 2px 10px;
+  border-radius: 4px;
+  background: var(--accent-glow);
+  color: var(--accent);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+.category-tag {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: rgba(34, 211, 238, 0.08);
+  color: var(--success);
+  border: 1px solid rgba(34, 211, 238, 0.2);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.key-result {
+  font-size: 0.78rem;
+  color: var(--accent-secondary);
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  border-radius: 6px;
+  padding: 6px 12px;
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.875rem;
+  padding: 8px 20px;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-primary:hover {
+  background: var(--accent-hover);
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.875rem;
+  padding: 8px 20px;
+  border-radius: 8px;
+  text-decoration: none;
+  border: 1px solid var(--border);
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.btn-secondary:hover {
+  color: var(--text);
+  border-color: rgba(168, 85, 247, 0.5);
+  background: var(--accent-glow);
+}
+
+.btn-pdf {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--accent-secondary);
+  font-weight: 600;
+  font-size: 0.875rem;
+  padding: 8px 20px;
+  border-radius: 8px;
+  text-decoration: none;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-pdf:hover {
+  background: rgba(245, 158, 11, 0.18);
+  box-shadow: 0 0 16px rgba(245, 158, 11, 0.2);
+}
+
+/* ============================================================
+   TABLE OF CONTENTS
+   ============================================================ */
+.toc-nav {
+  position: sticky;
+  top: 80px;
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.toc-item {
+  display: block;
+  padding: 5px 12px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  border-left: 2px solid transparent;
+  border-radius: 0 6px 6px 0;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+  line-height: 1.4;
+}
+
+.toc-item:hover {
+  color: var(--text);
+  background: var(--accent-glow);
+  border-left-color: rgba(168, 85, 247, 0.4);
+}
+
+.toc-sub {
+  padding-left: 24px;
+  font-size: 0.78rem;
+}
+
+.toc-active {
+  color: var(--accent) !important;
+  border-left-color: var(--accent) !important;
+  background: var(--accent-glow) !important;
+}
+
+/* ============================================================
+   PAPER CONTENT — rich typography for academic papers
+   ============================================================ */
+.paper-content {
+  color: var(--text);
+  line-height: 1.8;
+  font-size: 1rem;
+}
+
+.paper-content h1,
+.paper-content h2,
+.paper-content h3,
+.paper-content h4,
+.paper-content h5 {
+  color: var(--text);
+  font-weight: 700;
+  line-height: 1.3;
+  scroll-margin-top: 90px;
+}
+
+.paper-content h1 { font-size: 1.8rem; margin: 2.5rem 0 1.25rem; }
+.paper-content h2 {
+  font-size: 1.35rem;
+  margin: 2.5rem 0 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.paper-content h3 { font-size: 1.1rem; margin: 2rem 0 0.75rem; color: var(--accent-hover); }
+.paper-content h4 { font-size: 1rem; margin: 1.5rem 0 0.5rem; color: var(--text-muted); }
+
+.paper-content p { margin: 0 0 1.2rem; }
+
+.paper-content a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-color: rgba(168, 85, 247, 0.4);
+}
+.paper-content a:hover { color: var(--accent-hover); }
+
+.paper-content strong { color: var(--text); font-weight: 700; }
+.paper-content em { color: var(--accent-secondary); font-style: italic; }
+
+.paper-content ul,
+.paper-content ol {
+  margin: 0 0 1.2rem 1.5rem;
+  padding: 0;
+}
+.paper-content li { margin-bottom: 0.4rem; }
+
+.paper-content blockquote {
+  margin: 1.5rem 0;
+  padding: 1rem 1.5rem;
+  border-left: 3px solid var(--accent);
+  background: var(--surface);
+  border-radius: 0 8px 8px 0;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Theorem-like environments */
+.paper-content .theorem,
+.paper-content .lemma,
+.paper-content .proposition,
+.paper-content .corollary,
+.paper-content .definition,
+.paper-content .proof {
+  margin: 1.5rem 0;
+  padding: 1rem 1.25rem;
+  border-radius: 8px;
+  border-left: 3px solid;
+}
+
+.paper-content .theorem { background: rgba(168, 85, 247, 0.08); border-color: var(--accent); }
+.paper-content .lemma { background: rgba(168, 85, 247, 0.06); border-color: rgba(168, 85, 247, 0.5); }
+.paper-content .proposition { background: rgba(34, 211, 238, 0.06); border-color: var(--success); }
+.paper-content .corollary { background: rgba(168, 85, 247, 0.06); border-color: rgba(168, 85, 247, 0.4); }
+.paper-content .definition { background: rgba(245, 158, 11, 0.07); border-color: var(--accent-secondary); }
+.paper-content .proof { background: var(--surface); border-color: var(--border); }
+
+/* Code blocks */
+.paper-content pre,
+.paper-content code {
+  font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+  font-size: 0.875rem;
+}
+
+.paper-content pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  line-height: 1.6;
+}
+
+.paper-content code:not(pre code) {
+  background: rgba(168, 85, 247, 0.12);
+  color: var(--accent-hover);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.85em;
+}
+
+/* Tables */
+.paper-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 0.9rem;
+}
+
+.paper-content th {
+  background: var(--surface);
+  color: var(--accent);
+  font-weight: 700;
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 2px solid var(--border);
+}
+
+.paper-content td {
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-muted);
+}
+
+.paper-content tr:hover td {
+  background: var(--accent-glow);
+  color: var(--text);
+}
+
+/* Math display */
+.paper-content .math-display,
+.paper-content .katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.5rem 0;
+  margin: 1rem 0;
+}
+
+/* KaTeX overrides for dark theme */
+.katex { color: var(--text); }
+.katex .katex-html { color: var(--text); }
+
+/* ============================================================
+   PAPER PAGE NAV
+   ============================================================ */
+.paper-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.875rem;
+  transition: all 0.15s ease;
+}
+
+.paper-nav-link:hover {
+  color: var(--accent);
+  border-color: rgba(168, 85, 247, 0.4);
+  background: var(--surface-hover);
+}
+
+/* ============================================================
+   MOBILE TOC TOGGLE
+   ============================================================ */
+.toc-mobile-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.toc-mobile-btn:hover {
+  color: var(--accent);
+  border-color: rgba(168, 85, 247, 0.4);
+}
+
+/* ============================================================
+   UTILS
+   ============================================================ */
+@layer utilities {
+  .text-balance { text-wrap: balance; }
+}
+
+/* Section divider */
+.section-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+  margin: 3rem 0;
+}
+
+/* Tagline accent */
+.tagline-quote {
+  font-style: italic;
+  color: var(--accent-secondary);
+  font-size: 1.05rem;
+  border-left: 3px solid var(--accent-secondary);
+  padding-left: 1rem;
+}
+
+/* Number accent */
+.stat-number {
+  font-size: 2.5rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: rgba(168, 85, 247, 0.3); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(168, 85, 247, 0.5); }

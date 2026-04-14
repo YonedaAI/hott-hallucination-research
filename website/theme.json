@@ -1,0 +1,23 @@
+{
+  "domain": "mathematics/homotopy-type-theory/AI",
+  "rationale": "Cross-disciplinary: algebraic topology meets CS/AI. Void black background evoking abstract mathematical space, rich purple-indigo accent palette reflecting categorical structure, amber-gold secondary for theorem highlights, bioluminescent cyan glows for interactive elements.",
+  "palette": {
+    "--bg": "#06030f",
+    "--surface": "#0e0820",
+    "--surface-hover": "#160c2e",
+    "--accent": "#a855f7",
+    "--accent-hover": "#c084fc",
+    "--accent-glow": "rgba(168,85,247,0.12)",
+    "--accent-secondary": "#f59e0b",
+    "--text": "#f1eeff",
+    "--text-muted": "#a89ec0",
+    "--text-dim": "#6b5f80",
+    "--border": "rgba(168,85,247,0.2)",
+    "--code-bg": "#0d0819",
+    "--success": "#22d3ee",
+    "--warning": "#f59e0b"
+  },
+  "typography": "Space Grotesk (geometric sans) with JetBrains Mono for code — evokes formal mathematical notation systems",
+  "hero": "Radial gradient from deep purple void to absolute black, with subtle SVG grid pattern evoking a CW-complex / simplicial complex diagram",
+  "cardEffects": "Box-shadow glow in accent purple on hover, left border accent bar, subtle translateY lift"
+}
