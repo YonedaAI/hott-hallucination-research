@@ -2,7 +2,7 @@
 generated: 2026-04-14
 author: Matthew Long (@yonedaai)
 organization: YonedaAI Research Collective / Magneton Labs LLC
-site: https://hott-hallucination.vercel.app
+site: https://hott-hallucination-research.vercel.app
 papers:
   - topological-hallucination-detection
   - type-theoretic-generation
@@ -22,7 +22,7 @@ papers:
 platform: twitter
 topic: topological-hallucination-detection
 title: "Topological Hallucination Detection: A Homotopy-Theoretic Classification of LLM Failure Modes"
-url: "https://hott-hallucination.vercel.app/papers/topological-hallucination-detection"
+url: "https://hott-hallucination-research.vercel.app/papers/topological-hallucination-detection"
 status: draft
 created: 2026-04-14
 ---
@@ -34,7 +34,7 @@ Hallucination is not a bug. It's a theorem.
 New paper: every LLM failure mode corresponds to a precise topological invariant. We prove it.
 
 🧵 Thread:
-[https://hott-hallucination.vercel.app/papers/topological-hallucination-detection]
+[https://hott-hallucination-research.vercel.app/papers/topological-hallucination-detection]
 
 #HomotopyTypeTheory #MachineLearning #AIResearch #AlgebraicTopology
 
@@ -95,7 +95,7 @@ Part I of a trilogy. The diagnosis.
 Part II asks: what would generation look like if it *respected* the topology?
 Part III proves the full system is complete.
 
-Paper: https://hott-hallucination.vercel.app/papers/topological-hallucination-detection
+Paper: https://hott-hallucination-research.vercel.app/papers/topological-hallucination-detection
 
 #HomotopyTypeTheory #CategoryTheory #LLMHallucination #AIResearch #AlgebraicTopology
 
@@ -108,7 +108,7 @@ Paper: https://hott-hallucination.vercel.app/papers/topological-hallucination-de
 platform: linkedin
 topic: topological-hallucination-detection
 title: "Topological Hallucination Detection: A Homotopy-Theoretic Classification of LLM Failure Modes"
-url: "https://hott-hallucination.vercel.app/papers/topological-hallucination-detection"
+url: "https://hott-hallucination-research.vercel.app/papers/topological-hallucination-detection"
 status: draft
 created: 2026-04-14
 ---
@@ -124,8 +124,8 @@ We prove the Fundamental Obstruction Theorem: no faithful functor from a semanti
 
 The implications for AI safety and alignment research are substantial. If hallucination is structurally inevitable in architectures that map to contractible codomains, then no amount of fine-tuning or prompt engineering will eliminate it. The correct response is to change the architecture's mathematical foundation — which our companion papers (Type-Theoretic Generation and the HoTT Synthesis) address directly. We also provide practical tooling: a bridge from the abstract theory to computation via persistent homology on Vietoris–Rips filtrations, with a complete Haskell implementation of all five topological detectors.
 
-Full paper: https://hott-hallucination.vercel.app/papers/topological-hallucination-detection
-GitHub (Haskell formalization): https://github.com/yonedaai/hott-hallucination
+Full paper: https://hott-hallucination-research.vercel.app/papers/topological-hallucination-detection
+GitHub (Haskell formalization): https://github.com/YonedaAI/hott-hallucination-research
 
 #AIResearch #MachineLearning #LLMHallucination #AIAlignment #CategoryTheory #HomotopyTypeTheory #AlgebraicTopology #ResponsibleAI
 
@@ -138,7 +138,7 @@ GitHub (Haskell formalization): https://github.com/yonedaai/hott-hallucination
 platform: facebook
 topic: topological-hallucination-detection
 title: "Topological Hallucination Detection: A Homotopy-Theoretic Classification of LLM Failure Modes"
-url: "https://hott-hallucination.vercel.app/papers/topological-hallucination-detection"
+url: "https://hott-hallucination-research.vercel.app/papers/topological-hallucination-detection"
 status: draft
 created: 2026-04-14
 ---
@@ -158,7 +158,7 @@ We also identify five specific types of hallucination — circular reasoning, un
 
 The good news? We now know exactly what to fix — and our companion papers show how.
 
-Paper + Haskell code: https://hott-hallucination.vercel.app/papers/topological-hallucination-detection
+Paper + Haskell code: https://hott-hallucination-research.vercel.app/papers/topological-hallucination-detection
 
 #AIHallucination #MachineLearning #MathematicsOfAI #AlgebraicTopology #HomotopyTypeTheory #AIResearch #YonedaAI
 
@@ -171,7 +171,7 @@ Paper + Haskell code: https://hott-hallucination.vercel.app/papers/topological-h
 platform: bluesky
 topic: topological-hallucination-detection
 title: "Topological Hallucination Detection: A Homotopy-Theoretic Classification of LLM Failure Modes"
-url: "https://hott-hallucination.vercel.app/papers/topological-hallucination-detection"
+url: "https://hott-hallucination-research.vercel.app/papers/topological-hallucination-detection"
 status: draft
 created: 2026-04-14
 ---
@@ -181,7 +181,7 @@ LLM hallucination is structurally inevitable — we proved it. Semantic space is
 
 Five hallucination types = five topological invariants.
 
-https://hott-hallucination.vercel.app/papers/topological-hallucination-detection
+https://hott-hallucination-research.vercel.app/papers/topological-hallucination-detection
 
 #HomotopyTypeTheory #AIHallucination #CategoryTheory
 
@@ -198,7 +198,7 @@ https://hott-hallucination.vercel.app/papers/topological-hallucination-detection
 platform: twitter
 topic: type-theoretic-generation
 title: "Type-Theoretic Generation: Hallucination-Free Language Generation via Dependent Type Theory"
-url: "https://hott-hallucination.vercel.app/papers/type-theoretic-generation"
+url: "https://hott-hallucination-research.vercel.app/papers/type-theoretic-generation"
 status: draft
 created: 2026-04-14
 ---
@@ -212,7 +212,7 @@ New paper: replace arg max P(t|ctx) with arg min C(a) s.t. Γ ⊢ a : A
 The difference is everything.
 
 🧵 Thread:
-https://hott-hallucination.vercel.app/papers/type-theoretic-generation
+https://hott-hallucination-research.vercel.app/papers/type-theoretic-generation
 
 #DependentTypes #HomotopyTypeTheory #AIResearch #LanguageModels
 
@@ -282,7 +282,7 @@ Part II of a trilogy. The cure.
 Part I proved the diagnosis (hallucination is structural).
 Part III proves this approach is complete (catches everything).
 
-Paper + Haskell: https://hott-hallucination.vercel.app/papers/type-theoretic-generation
+Paper + Haskell: https://hott-hallucination-research.vercel.app/papers/type-theoretic-generation
 
 #DependentTypes #CurryHoward #LLMHallucination #CategoryTheory #AIResearch #ProofSearch
 
@@ -295,7 +295,7 @@ Paper + Haskell: https://hott-hallucination.vercel.app/papers/type-theoretic-gen
 platform: linkedin
 topic: type-theoretic-generation
 title: "Type-Theoretic Generation: Hallucination-Free Language Generation via Dependent Type Theory"
-url: "https://hott-hallucination.vercel.app/papers/type-theoretic-generation"
+url: "https://hott-hallucination-research.vercel.app/papers/type-theoretic-generation"
 status: draft
 created: 2026-04-14
 ---
@@ -311,8 +311,8 @@ We establish five generation principles that jointly guarantee hallucination fre
 
 When read alongside our companion topological detection paper, an elegant five-by-five duality becomes visible: each generation principle is the constructive dual of one of the five hallucination types. Preventing circular reasoning requires proof search that cannot produce non-contractible loops. Preventing unjustified inference requires abstention when types are disconnected. The mathematical structure is not coincidental — it reflects the fact that detection and generation operate on the same underlying semantic object. Our third paper proves these are adjoint functors.
 
-Full paper: https://hott-hallucination.vercel.app/papers/type-theoretic-generation
-GitHub (Haskell formalization): https://github.com/yonedaai/hott-hallucination
+Full paper: https://hott-hallucination-research.vercel.app/papers/type-theoretic-generation
+GitHub (Haskell formalization): https://github.com/YonedaAI/hott-hallucination-research
 
 #AIResearch #MachineLearning #DependentTypes #TypeTheory #LLMHallucination #AIAlignment #FormalVerification #CurryHoward #ResponsibleAI
 
@@ -325,7 +325,7 @@ GitHub (Haskell formalization): https://github.com/yonedaai/hott-hallucination
 platform: facebook
 topic: type-theoretic-generation
 title: "Type-Theoretic Generation: Hallucination-Free Language Generation via Dependent Type Theory"
-url: "https://hott-hallucination.vercel.app/papers/type-theoretic-generation"
+url: "https://hott-hallucination-research.vercel.app/papers/type-theoretic-generation"
 status: draft
 created: 2026-04-14
 ---
@@ -342,7 +342,7 @@ When you reframe generation this way, something remarkable happens with the case
 We also show that this approach connects perfectly to our first paper's five hallucination types. Each of the five principles in this paper prevents exactly one of the five topological failure modes we identified earlier. The mathematics lines up like a key fitting a lock — which is not a coincidence but a theorem.
 
 Proof of concept with full Haskell implementation:
-https://hott-hallucination.vercel.app/papers/type-theoretic-generation
+https://hott-hallucination-research.vercel.app/papers/type-theoretic-generation
 
 #AIHallucination #TypeTheory #FormalMethods #MachineLearning #AIResearch #YonedaAI #ResponsibleAI
 
@@ -355,7 +355,7 @@ https://hott-hallucination.vercel.app/papers/type-theoretic-generation
 platform: bluesky
 topic: type-theoretic-generation
 title: "Type-Theoretic Generation: Hallucination-Free Language Generation via Dependent Type Theory"
-url: "https://hott-hallucination.vercel.app/papers/type-theoretic-generation"
+url: "https://hott-hallucination-research.vercel.app/papers/type-theoretic-generation"
 status: draft
 created: 2026-04-14
 ---
@@ -367,7 +367,7 @@ Generation = proof search. When no proof exists, return ⊥, not a hallucination
 
 Five-by-five duality with the detection paper is the payoff.
 
-https://hott-hallucination.vercel.app/papers/type-theoretic-generation
+https://hott-hallucination-research.vercel.app/papers/type-theoretic-generation
 
 #DependentTypes #CurryHoward #AIHallucination
 
@@ -384,7 +384,7 @@ https://hott-hallucination.vercel.app/papers/type-theoretic-generation
 platform: twitter
 topic: hott-synthesis
 title: "The HoTT Hallucination Framework: A Unified Theory of Semantic Correctness via Homotopy Type Theory"
-url: "https://hott-hallucination.vercel.app/papers/hott-synthesis"
+url: "https://hott-hallucination-research.vercel.app/papers/hott-synthesis"
 status: draft
 created: 2026-04-14
 ---
@@ -400,7 +400,7 @@ Generate ⊣ Detect : Sem → Claim
 New paper proves it — and derives completeness.
 
 🧵 Thread:
-https://hott-hallucination.vercel.app/papers/hott-synthesis
+https://hott-hallucination-research.vercel.app/papers/hott-synthesis
 
 #HomotopyTypeTheory #CategoryTheory #AIResearch
 
@@ -488,7 +488,7 @@ Part III: Together they are complete. (Unification)
 
 The topology of meaning must be respected, not collapsed.
 
-https://hott-hallucination.vercel.app/papers/hott-synthesis
+https://hott-hallucination-research.vercel.app/papers/hott-synthesis
 
 #HomotopyTypeTheory #CategoryTheory #AIAlignment #LLMHallucination #AbstractMath #AIResearch
 
@@ -501,7 +501,7 @@ https://hott-hallucination.vercel.app/papers/hott-synthesis
 platform: linkedin
 topic: hott-synthesis
 title: "The HoTT Hallucination Framework: A Unified Theory of Semantic Correctness via Homotopy Type Theory"
-url: "https://hott-hallucination.vercel.app/papers/hott-synthesis"
+url: "https://hott-hallucination-research.vercel.app/papers/hott-synthesis"
 status: draft
 created: 2026-04-14
 ---
@@ -517,8 +517,8 @@ The ambient mathematical universe is an ∞-topos of semantic types, where the i
 
 For AI safety practitioners, the immediate takeaway is architectural. No amount of post-hoc calibration or retrieval augmentation can achieve completeness within a fundamentally contractible representation space. A hybrid architecture — LLM candidate generation wrapped by a type-checking and persistent homology verification layer — achieves soundness while preserving the fluency advantages of neural generation. The POC architecture, formalized in Haskell, demonstrates that the mathematics is computationally concrete.
 
-Full paper: https://hott-hallucination.vercel.app/papers/hott-synthesis
-GitHub (Haskell formalization): https://github.com/yonedaai/hott-hallucination
+Full paper: https://hott-hallucination-research.vercel.app/papers/hott-synthesis
+GitHub (Haskell formalization): https://github.com/YonedaAI/hott-hallucination-research
 
 #AIResearch #MachineLearning #HomotopyTypeTheory #CategoryTheory #LLMHallucination #AIAlignment #FormalMethods #AbstractMathematics #ResponsibleAI
 
@@ -531,7 +531,7 @@ GitHub (Haskell formalization): https://github.com/yonedaai/hott-hallucination
 platform: facebook
 topic: hott-synthesis
 title: "The HoTT Hallucination Framework: A Unified Theory of Semantic Correctness via Homotopy Type Theory"
-url: "https://hott-hallucination.vercel.app/papers/hott-synthesis"
+url: "https://hott-hallucination-research.vercel.app/papers/hott-synthesis"
 status: draft
 created: 2026-04-14
 ---
@@ -551,7 +551,7 @@ Yes — deeply. Detection (spotting hallucinations) and generation (producing co
 The big payoff: the Completeness Theorem. The combined system catches EVERY hallucination (nothing slips through detection) AND never produces new ones (generation is sound). We also prove something philosophically striking — valid, non-hallucinated claims are exactly the FIXED POINTS of the semantic monad. In plain terms: truth is what stays the same when you verify it again.
 
 All three papers, with Haskell code:
-https://hott-hallucination.vercel.app/papers/hott-synthesis
+https://hott-hallucination-research.vercel.app/papers/hott-synthesis
 
 #AIHallucination #MachineLearning #MathematicsOfAI #CategoryTheory #HomotopyTypeTheory #YonedaAI #AIResearch #CompletenessTheorem
 
@@ -564,7 +564,7 @@ https://hott-hallucination.vercel.app/papers/hott-synthesis
 platform: bluesky
 topic: hott-synthesis
 title: "The HoTT Hallucination Framework: A Unified Theory of Semantic Correctness via Homotopy Type Theory"
-url: "https://hott-hallucination.vercel.app/papers/hott-synthesis"
+url: "https://hott-hallucination-research.vercel.app/papers/hott-synthesis"
 status: draft
 created: 2026-04-14
 ---
@@ -572,7 +572,7 @@ created: 2026-04-14
 
 Hallucination detection and type-theoretic generation are adjoint functors: Generate ⊣ Detect. Their composite T = Detect∘Generate is the semantic monad. Non-hallucinated claims = fixed points of T. Completeness theorem: the system catches everything.
 
-https://hott-hallucination.vercel.app/papers/hott-synthesis
+https://hott-hallucination-research.vercel.app/papers/hott-synthesis
 
 #HomotopyTypeTheory #CategoryTheory #AIAlignment
 
@@ -589,7 +589,7 @@ https://hott-hallucination.vercel.app/papers/hott-synthesis
 platform: twitter
 topic: homotopical-semantics-trilogy
 title: "The Homotopical Semantics Trilogy"
-url: "https://hott-hallucination.vercel.app"
+url: "https://hott-hallucination-research.vercel.app"
 status: draft
 created: 2026-04-14
 ---
@@ -602,7 +602,7 @@ The Homotopical Semantics Trilogy by @yonedaai
 
 🧵
 
-https://hott-hallucination.vercel.app
+https://hott-hallucination-research.vercel.app
 
 #HomotopyTypeTheory #CategoryTheory #AIResearch #LLMHallucination
 
@@ -615,7 +615,7 @@ The diagnosis. 5 hallucination types = 5 topological invariants (π₀, π₁, �
 
 The Fundamental Obstruction Theorem: hallucination is mathematically inevitable when you map meaning to a contractible space.
 
-https://hott-hallucination.vercel.app/papers/topological-hallucination-detection
+https://hott-hallucination-research.vercel.app/papers/topological-hallucination-detection
 
 ---
 
@@ -628,7 +628,7 @@ Generation = proof search. Abstention = correct response when type is uninhabite
 
 The 5×5 duality: each principle prevents exactly one failure mode from Part I.
 
-https://hott-hallucination.vercel.app/papers/type-theoretic-generation
+https://hott-hallucination-research.vercel.app/papers/type-theoretic-generation
 
 ---
 
@@ -643,7 +643,7 @@ T = Detect ∘ Generate is the semantic monad. Non-hallucinated claims = fixed p
 
 The Completeness Theorem: sound AND complete.
 
-https://hott-hallucination.vercel.app/papers/hott-synthesis
+https://hott-hallucination-research.vercel.app/papers/hott-synthesis
 
 ---
 
@@ -663,8 +663,8 @@ The topology of meaning must be respected — not collapsed.
 
 ~75 pages. 26 theorems. One message.
 
-Full trilogy: https://hott-hallucination.vercel.app
-Code: https://github.com/yonedaai/hott-hallucination
+Full trilogy: https://hott-hallucination-research.vercel.app
+Code: https://github.com/YonedaAI/hott-hallucination-research
 
 By Matthew Long @yonedaai — YonedaAI Research Collective / Magneton Labs LLC
 
