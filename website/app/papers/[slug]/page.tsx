@@ -15,14 +15,33 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const paper = getPaperBySlug(params.slug);
   if (!paper) return {};
+  const description = paper.abstract.slice(0, 200) + '...';
   return {
     title: paper.title,
-    description: paper.abstract.slice(0, 200),
+    description,
     openGraph: {
       title: paper.title,
-      description: paper.abstract.slice(0, 200),
-      images: [{ url: paper.ogImage, width: 1200, height: 630 }],
+      description,
+      url: `https://hott-hallucination-research.vercel.app/papers/${params.slug}`,
+      images: [
+        {
+          url: paper.ogImage,
+          width: 1200,
+          height: 630,
+          alt: `${paper.title} — YonedaAI`,
+        },
+      ],
       type: 'article',
+      siteName: 'YonedaAI Research Collective',
+      authors: ['Matthew Long'],
+      publishedTime: '2026-04-14T00:00:00Z',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: paper.title,
+      description,
+      images: [paper.ogImage],
+      creator: '@yonedaai',
     },
   };
 }

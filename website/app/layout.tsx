@@ -11,6 +11,7 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://hott-hallucination-research.vercel.app'),
   title: {
     default: 'YonedaAI Research Collective — Hallucination is a Theorem',
     template: '%s | YonedaAI Research',
@@ -33,7 +34,24 @@ export const metadata: Metadata = {
     siteName: 'YonedaAI Research Collective',
     title: 'YonedaAI Research Collective — Hallucination is a Theorem',
     description:
+      'A homotopy type theory framework for detecting and preventing LLM hallucination. 75 pages, 21 theorems, 3 verified Haskell modules.',
+    url: 'https://hott-hallucination-research.vercel.app',
+    images: [
+      {
+        url: '/images/og/hott-synthesis-og.png',
+        width: 1200,
+        height: 630,
+        alt: 'HoTT Hallucination Research — YonedaAI',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'YonedaAI Research — Hallucination is a Theorem',
+    description:
       'A homotopy type theory framework for detecting and preventing LLM hallucination.',
+    images: ['/images/og/hott-synthesis-og.png'],
+    creator: '@yonedaai',
   },
 };
 
