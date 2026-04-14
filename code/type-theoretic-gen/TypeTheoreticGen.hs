@@ -1,8 +1,4 @@
-{-# LANGUAGE GADTs                 #-}
-{-# LANGUAGE DataKinds             #-}
-{-# LANGUAGE RankNTypes            #-}
 {-# LANGUAGE ScopedTypeVariables   #-}
-{-# LANGUAGE StandaloneDeriving    #-}
 
 -- ============================================================================
 -- TypeTheoreticGen.hs
@@ -111,11 +107,15 @@ data Fiber = Fiber
   , llmTerms    :: [(SemTerm, Float)]
   } deriving (Show)
 
--- | Hallucination measure: probability mass outside the valid fiber.
+-- | Hallucination measure: fraction of probability mass outside the valid fiber.
+-- Normalized to [0,1]. Returns 0 if no LLM terms are present.
 hallucinationMeasure :: Fiber -> Float
 hallucinationMeasure fib =
-  let invalid = filter (\(t, _) -> t `notElem` validTerms fib) (llmTerms fib)
-  in sum (map snd invalid)
+  let allWeights = map snd (llmTerms fib)
+      totalMass  = sum allWeights
+      invalid    = filter (\(t, _) -> t `notElem` validTerms fib) (llmTerms fib)
+      invalidMass = sum (map snd invalid)
+  in if totalMass <= 0 then 0 else invalidMass / totalMass
 
 -- ============================================================================
 -- III. DERIVATION TREES (Principle P2)
@@ -187,8 +187,8 @@ typeCheck ctx (Pair a b) (ProdType ta tb) =
     (Left err, _)            -> Left err
     (_, Left err)            -> Left err
     _                        -> Left Unchecked
-typeCheck _ (InL _) (SumType _ _) = Right True  -- Left injection into sum
-typeCheck _ (InR _) (SumType _ _) = Right True  -- Right injection into sum
+typeCheck ctx (InL t) (SumType ta _tb) = typeCheck ctx t ta  -- Left injection
+typeCheck ctx (InR t) (SumType _ta tb) = typeCheck ctx t tb  -- Right injection
 typeCheck _ _ _ = Left Unchecked
 
 -- ============================================================================
@@ -216,7 +216,14 @@ ctxSearch (Extend ctx (x, t)) goal
   | t == goal = case goal of
       Prop p   -> Just (Grounded p Axiomatic, VarD x)
       Entity e -> Just (Grounded e Axiomatic, VarD x)
-      _        -> Just (UnitTerm, VarD x)
+      UnitType -> Just (UnitTerm, VarD x)
+      PathType _ a b
+        | a == b    -> Just (Refl a, VarD x)
+        | otherwise -> Just (PathWitness a b Propositional, VarD x)
+      ProdType _ _ -> Nothing  -- Cannot synthesize product from context name alone
+      SumType _ _  -> Nothing  -- Cannot synthesize sum from context name alone
+      FuncType _ _ -> Nothing  -- Cannot synthesize function from context name alone
+      VoidType     -> Nothing  -- Void has no inhabitants
   | otherwise = ctxSearch ctx goal
 
 -- | Search the knowledge base for a grounding source.
@@ -264,7 +271,13 @@ data AbstentionLevel
 abstentionLevel :: KnowledgeBase -> Context -> SemType -> AbstentionLevel
 abstentionLevel kb ctx ty
   | isProvablyEmpty kb ctx ty = ProvablyUninhabited
-  | otherwise = SearchExhausted 5
+  | hasRelevantKB kb ty       = SearchExhausted 5
+  | otherwise                 = KnowledgeBounded
+  where
+    -- Check if the knowledge base has any entries related to this type.
+    hasRelevantKB :: KnowledgeBase -> SemType -> Bool
+    hasRelevantKB (KnowledgeBase entries) goal =
+      any (\(_, t, _) -> t == goal) entries
 
 -- ============================================================================
 -- VII. CATEGORICAL ATTENTION (Principle P5)
@@ -284,6 +297,9 @@ data DiagramCoherence
   deriving (Show)
 
 -- | Check if a diagram is coherent (all paths compose consistently).
+-- When coherent, computes a weighted limit: selects the object with the
+-- highest weight among diagram objects (approximating the categorical
+-- weighted limit for a discrete diagram).
 checkDiagramCoherence :: SemanticDiagram -> DiagramCoherence
 checkDiagramCoherence diag =
   let morphs = diagMorphisms diag
@@ -294,8 +310,31 @@ checkDiagramCoherence diag =
      else if hasContradiction
      then IncoherentDiag ["Contradictory paths in diagram"]
      else case diagObjects diag of
-       []    -> IncoherentDiag ["Empty diagram"]
-       (x:_) -> Coherent x  -- Simplified: return first object as limit
+       []   -> IncoherentDiag ["Empty diagram"]
+       objs -> Coherent (selectByWeight objs (diagWeights diag))
+
+-- | Select the diagram object with the highest weight.
+-- Falls back to the first object if no weights match.
+selectByWeight :: [SemTerm] -> [(Int, Float)] -> SemTerm
+selectByWeight [] _ = Absurd  -- Should not happen; guarded by caller
+selectByWeight (first:rest) weights =
+  let indexed = zip [0..] (first:rest)
+      weighted = [ (w, obj)
+                 | (i, obj) <- indexed
+                 , (wi, w)  <- weights
+                 , wi == i ]
+      -- If we have weighted entries, pick the highest-weighted object;
+      -- otherwise fall back to the first object.
+  in case weighted of
+       []  -> first
+       wos -> snd (maximumByWeight wos)
+  where
+    maximumByWeight :: [(Float, SemTerm)] -> (Float, SemTerm)
+    maximumByWeight [x] = x
+    maximumByWeight (x:y:ys)
+      | fst x >= fst y = maximumByWeight (x:ys)
+      | otherwise       = maximumByWeight (y:ys)
+    maximumByWeight []  = (0, first)  -- unreachable but total
 
 -- | Detect contradictions: two paths from same source to same target
 -- with incompatible evidence.
@@ -353,15 +392,36 @@ unifyTerms a b
 -- IX. DERIVATION VERIFICATION
 -- ============================================================================
 
+-- | Result of derivation verification.
+data VerifyResult
+  = Verified             -- Derivation is valid
+  | Rejected String      -- Derivation is invalid, with reason
+  | Unverified String    -- Not enough cases to verify (incompleteness)
+  deriving (Show)
+
 -- | Verify that a derivation tree is valid.
-verifyDerivation :: Context -> SemTerm -> SemType -> Derivation -> Bool
-verifyDerivation _ (Grounded s _) (Prop p) (AxiomD _) = s == p
-verifyDerivation _ (Grounded s _) (Entity e) (AxiomD _) = s == e
-verifyDerivation _ (Refl a) (PathType _ x y) (ReflD r) =
-  a == r && r == x && r == y
-verifyDerivation _ (Hallucinated _) _ _ = False  -- Always invalid
-verifyDerivation _ UnitTerm UnitType _ = True
-verifyDerivation _ _ _ _ = True  -- Simplified for demonstration
+verifyDerivation :: Context -> SemTerm -> SemType -> Derivation -> VerifyResult
+verifyDerivation _ (Grounded s _) (Prop p) (AxiomD _)
+  | s == p    = Verified
+  | otherwise = Rejected ("Grounded term '" ++ s ++ "' does not match Prop '" ++ p ++ "'")
+verifyDerivation _ (Grounded s _) (Entity e) (AxiomD _)
+  | s == e    = Verified
+  | otherwise = Rejected ("Grounded term '" ++ s ++ "' does not match Entity '" ++ e ++ "'")
+verifyDerivation _ (Refl a) (PathType _ x y) (ReflD r)
+  | a == r && r == x && r == y = Verified
+  | otherwise = Rejected ("Refl mismatch: refl(" ++ a ++ ") for path " ++ x ++ " = " ++ y)
+verifyDerivation _ (Hallucinated h) _ _ =
+  Rejected ("Hallucinated term: " ++ h)
+verifyDerivation _ UnitTerm UnitType (AxiomD _) = Verified
+verifyDerivation ctx (Pair a b) (ProdType ta tb) (ElimD da db) =
+  case (verifyDerivation ctx a ta da, verifyDerivation ctx b tb db) of
+    (Verified, Verified) -> Verified
+    (Rejected r, _)      -> Rejected r
+    (_, Rejected r)      -> Rejected r
+    (Unverified r, _)    -> Unverified r
+    (_, Unverified r)    -> Unverified r
+verifyDerivation _ _ _ _ =
+  Unverified "No verification rule for this term/type/derivation combination"
 
 -- ============================================================================
 -- X. MAIN: DEMONSTRATING ALL FIVE PRINCIPLES

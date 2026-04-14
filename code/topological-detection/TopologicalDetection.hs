@@ -459,8 +459,21 @@ main = do
   -- ---- Case 3: Inconsistent Justifications (pi_2) ----
   putStrLn "--- Case 3: Inconsistent Justifications (pi_2 / 2-cells) ---"
   let path1 = Propositional   -- Proof via similar triangles
-  let _path2 = ByUnivalence   -- Proof via area dissection (different approach)
+  let path2 = ByUnivalence    -- Proof via area dissection (different approach)
   let path3 = NoEvidence      -- No proof at all
+
+  -- First: two genuinely distinct proofs (Propositional vs ByUnivalence)
+  -- These are different proof strategies with no 2-cell connecting them
+  putStrLn "  Check 1: Propositional vs ByUnivalence (distinct proof strategies)"
+  case detectIncoherentPaths "Pythagorean theorem" "a^2+b^2=c^2" path1 path2 of
+    Just obs -> do
+      putStrLn $ "  DETECTED: " ++ show obs
+      putStrLn "  Interpretation: Two genuinely distinct proof strategies."
+      putStrLn "  Conflating them is a pi_2-level error (no 2-cell connects them)."
+    Nothing  -> putStrLn "  OK: Paths are coherent (2-cell exists)."
+
+  -- Second: incompatible paths (Propositional vs NoEvidence)
+  putStrLn "  Check 2: Propositional vs NoEvidence (incompatible)"
   case detectIncoherentPaths "premise" "conclusion" path1 path3 of
     Just obs -> do
       putStrLn $ "  DETECTED: " ++ show obs

@@ -275,11 +275,16 @@ detectHomologicalHoles kc term =
       all (\(a', b') -> (a', b') `elem` kcEdges kc' || (b', a') `elem` kcEdges kc')
           (zip xs (drop 1 xs ++ take 1 xs))
 
+    -- NOTE: isFilled currently only handles 2-simplices (triangles).
+    -- Detecting filled n-simplices for n >= 3 would require extending
+    -- the KnowledgeComplex data type to store higher-dimensional simplices
+    -- (4-tuples, 5-tuples, etc.) and checking filling conditions there.
+    -- This is a known limitation: H_n detection for n >= 2 is incomplete.
     isFilled :: KnowledgeComplex -> [String] -> Bool
     isFilled kc' [a', b', c'] = (a', b', c') `elem` kcTriangles kc'
                               || (b', c', a') `elem` kcTriangles kc'
                               || (c', a', b') `elem` kcTriangles kc'
-    isFilled _ _ = False  -- Higher simplices not filled
+    isFilled _ _ = False  -- Higher simplices: would need n-simplex data
 
 -- | Detect holonomy obstruction: transport anomaly (compositional drift)
 detectTransportAnomaly :: Context -> KnowledgeComplex -> SemTerm
@@ -388,7 +393,15 @@ searchInhabitant ctx kc (ProdType a b) = do
   (tb, db) <- searchInhabitant ctx kc b
   return (Grounded (showTerm ta ++ " & " ++ showTerm tb) (Derived []),
           IntroD "pair" (ElimD da db))
-searchInhabitant _ _ _ = Nothing
+searchInhabitant ctx kc (SumType a b) =
+  -- Try left injection first, then right injection
+  case searchInhabitant ctx kc a of
+    Just (ta, da) -> Just (Grounded ("inl(" ++ showTerm ta ++ ")") (Derived []),
+                           IntroD "inl" da)
+    Nothing -> case searchInhabitant ctx kc b of
+      Just (tb, db) -> Just (Grounded ("inr(" ++ showTerm tb ++ ")") (Derived []),
+                             IntroD "inr" db)
+      Nothing -> Nothing
 
 -- ============================================================================
 -- X. THE SEMANTIC MONAD T = Detect . Generate
@@ -417,14 +430,37 @@ instance Monad SemanticM where
         (b, o2)  = runSemantic (f a) ctx kc
     in (b, o1 ++ o2)
 
+-- | The semantic monad T = Detect . Generate as an explicit function.
+-- Given a term t:
+--   (1) Infer its type A = inferType t
+--   (2) Generate a term t' from A (Generate step)
+--   (3) Detect obstructions on t' (Detect step)
+-- Returns the result of the full round-trip.
+semanticT :: Context -> KnowledgeComplex -> SemTerm
+          -> (Maybe SemTerm, [TopologicalObstruction])
+semanticT ctx kc term =
+  let -- Step 1: Infer the type of the input term
+      semType = inferType term
+      -- Step 2: Generate a new term from that type
+      genResult = generate ctx kc semType
+  in case genResult of
+    Generated t' _deriv ->
+      -- Step 3: Detect obstructions on the generated term
+      let detResult = detect ctx kc t'
+      in (Just t', drObstructions detResult)
+    Abstained _reason ->
+      -- Generation failed: type is uninhabited
+      (Nothing, [MissingPath (showTerm term) "inhabited-type"])
+
 -- | Monadic unit: eta_A : A -> T(A)
--- Maps a claim to its verified version
+-- Maps a claim to its verified version via the full T = Detect . Generate
+-- composite: infer type, generate from type, detect on result.
 semanticUnit :: SemTerm -> SemanticM SemTerm
 semanticUnit term = SemanticM $ \ctx kc ->
-  let result = detect ctx kc term
-  in case drObstructions result of
-    [] -> (term, [])  -- No obstructions: term is a fixed point
-    obs -> (term, obs)  -- Has obstructions: record them
+  let (mTerm, obs) = semanticT ctx kc term
+  in case mTerm of
+    Just t' -> (t', obs)
+    Nothing -> (term, obs)  -- Generation failed; return original with obstructions
 
 -- | Monadic multiplication: mu_A : T^2(A) -> T(A)
 -- Collapses double verification
@@ -505,10 +541,14 @@ isSemanticFixedPoint ctx kc term =
   let (_, obs) = runSemantic (semanticUnit term) ctx kc
   in null obs
 
--- | Verify the completeness theorem for a specific claim
+-- | Verify the completeness theorem for a specific claim.
+-- Tests the actual round-trip: Detect -> Generate -> check equivalence.
+-- Returns (notHallucinated, noObstructions, roundTripEquivalent)
+-- where roundTripEquivalent checks that T(a) = Detect(Generate(Detect(a)))
+-- produces a term equivalent to the original.
 verifyCompleteness :: Context -> KnowledgeComplex -> SemTerm -> SemType
                    -> (Bool, Bool, Bool)
-verifyCompleteness ctx kc term goalType =
+verifyCompleteness ctx kc term _goalType =
   let -- (i) Is the term not hallucinated?
       notHallucinated = case checkGrounding ctx term of
         FullyGrounded _ -> True
@@ -518,13 +558,23 @@ verifyCompleteness ctx kc term goalType =
       detResult = detect ctx kc term
       noObstructions = null (drObstructions detResult)
 
-      -- (iii) Does generation produce equivalent term?
-      genResult = generate ctx kc goalType
-      genSucceeds = case genResult of
-        Generated _ _ -> True
-        Abstained _   -> False
+      -- (iii) Round-trip test: apply T = Detect . Generate
+      -- Step 1: Detect the input to get its type
+      detectedType = drType detResult
+      -- Step 2: Generate from the detected type
+      genResult = generate ctx kc detectedType
+      -- Step 3: Check that the generated term is equivalent
+      roundTripEquivalent = case genResult of
+        Generated genTerm _ ->
+          -- Check the generated term has no obstructions
+          let reDetect = detect ctx kc genTerm
+              reObs = drObstructions reDetect
+              -- And that it has the same type as the original
+              sameType = drType reDetect == detectedType
+          in null reObs && sameType
+        Abstained _ -> False
 
-  in (notHallucinated, noObstructions, genSucceeds)
+  in (notHallucinated, noObstructions, roundTripEquivalent)
 
 -- ============================================================================
 -- XIV. MAIN: DEMONSTRATION

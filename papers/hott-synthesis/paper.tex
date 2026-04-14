@@ -203,7 +203,7 @@ This paper is the capstone synthesis. It unifies two complementary threads devel
 \item \textbf{Thread 2 --- Type-Theoretic Generation} \cite{long2026homotopical}. Five generation principles replace statistical next-token prediction: generation as type inhabitation search, certified derivations, abstention on empty types, context as fibration, and attention as weighted limit.
 \end{enumerate}
 
-The key insight of the present work is that \emph{detection and generation are not independent operations}. They stand in a precise categorical relationship: detection is section-existence checking on a semantic sheaf, generation is section construction, and they form an \textbf{adjoint pair}. The composite $\SemanticT = \Generate \circ \Detect$ inherits monad structure. The ambient mathematical universe is an $\infty$-topos whose internal logic is HoTT itself. Within this framework, we prove that the combined system is \emph{complete}: every hallucination is detected, and generation never produces undetected hallucinations.
+The key insight of the present work is that \emph{detection and generation are not independent operations}. They stand in a precise categorical relationship: detection is section-existence checking on a semantic sheaf, generation is section construction, and they form an \textbf{adjoint pair}. The composite $\SemanticT = \Detect \circ \Generate$ inherits monad structure. The ambient mathematical universe is an $\infty$-topos whose internal logic is HoTT itself. Within this framework, we prove that the combined system is \emph{complete}: every hallucination is detected, and generation never produces undetected hallucinations.
 
 \subsection{Contributions}
 
@@ -211,7 +211,7 @@ This synthesis paper makes the following contributions:
 
 \begin{enumerate}[leftmargin=*,nosep]
   \item We establish the \textbf{Detection-Generation Duality} (\Cref{sec:duality}): detection and generation form an adjoint pair $\Generate \dashv \Detect$ on $\Sem$.
-  \item We construct the \textbf{Semantic Monad} $\SemanticT = \Generate \circ \Detect$ (\Cref{sec:monad}) and prove it satisfies the monad laws with semantic interpretations.
+  \item We construct the \textbf{Semantic Monad} $\SemanticT = \Detect \circ \Generate$ (\Cref{sec:monad}) and prove it satisfies the monad laws with semantic interpretations.
   \item We formalize the ambient framework as an \textbf{$\infty$-Topos of Semantic Types} (\Cref{sec:topos}) where the internal logic is HoTT.
   \item We develop the \textbf{Sheaf-Theoretic Formulation} (\Cref{sec:sheaf}) unifying obstruction-theoretic detection with section-constructive generation.
   \item We prove the \textbf{Completeness Theorem} (\Cref{sec:completeness}): HHC + type-theoretic generation = a complete hallucination-free system.
@@ -396,7 +396,7 @@ Generation is type inhabitation search: given $\Gamma$ and $A$, find $a$ such th
 
 \subsection{The Adjunction}
 
-\begin{theorem}[Detection-Generation Adjunction]\label{thm:adjunction}
+\begin{conjecture}[Detection-Generation Adjunction]\label{thm:adjunction}
 There is an adjunction:
 \[
 \Generate \dashv \Detect \colon \Sem \to \mathsf{Claim}
@@ -406,21 +406,35 @@ That is, for every raw claim $\hat{a} \in \mathsf{Claim}$ and semantic type $A \
 \Hom_{\mathsf{Claim}}(\Generate(A), \hat{a}) \cong \Hom_{\Sem}(A, \Detect(\hat{a}))
 \]
 naturally in $A$ and $\hat{a}$.
-\end{theorem}
+\end{conjecture}
+
+We conjecture that $\Generate \dashv \Detect$ forms an adjunction based on the following structural evidence. A full proof would require exhibiting an explicit natural bijection $\Hom_{\mathsf{Claim}}(\Generate(A), \hat{a}) \cong \Hom_{\Sem}(A, \Detect(\hat{a}))$ and verifying naturality in both variables. We defer this to future work and instead present the structural evidence that motivates the conjecture.
+
+\begin{proposition}[Structural Evidence for the Adjunction]\label{prop:adjunction-evidence}
+The following properties hold for $\Generate$ and $\Detect$:
+\begin{enumerate}[nosep]
+  \item \textbf{Unit existence.} There is a natural transformation $\eta\colon \id_{\Sem} \Rightarrow \Detect \circ \Generate$. For a semantic type $A$, the component $\eta_A\colon A \to \Detect(\Generate(A))$ maps $A$ to the semantic type assigned by detection to the claim generated from $A$. When $A$ is inhabited, generation produces a term of type $A$, and detection recovers $A$; the unit is the canonical map witnessing this.
+
+  \item \textbf{Counit existence.} There is a natural transformation $\varepsilon\colon \Generate \circ \Detect \Rightarrow \id_{\mathsf{Claim}}$. For a raw claim $\hat{a}$, the component $\varepsilon_{\hat{a}}\colon \Generate(\Detect(\hat{a})) \to \hat{a}$ maps the re-generated version of $\hat{a}$ back to $\hat{a}$.
+
+  \item \textbf{Free-forgetful analogy.} The pair $(\Generate, \Detect)$ mirrors the classical free-forgetful pattern: $\Generate$ is the ``free'' construction (produce the canonical claim satisfying a semantic specification), $\Detect$ is the ``forgetful'' construction (extract underlying semantic structure from a raw claim).
+
+  \item \textbf{Idempotency on verified claims.} On the full subcategory $\mathsf{VClaim}$ of verified claims, $\Detect$ is faithful and $\varepsilon$ restricted to $\mathsf{VClaim}$ is an isomorphism, consistent with the triangle identities holding there.
+\end{enumerate}
+\end{proposition}
 
 \begin{proof}
-We construct the adjunction by exhibiting the unit and counit.
-
-\emph{Unit} $\eta\colon \id_{\Sem} \Rightarrow \Detect \circ \Generate$. For a semantic type $A$, the unit $\eta_A\colon A \to \Detect(\Generate(A))$ maps $A$ to the semantic type assigned by detection to the claim generated from $A$. Since generation produces a term of type $A$ (when $A$ is inhabited), detection recovers $A$; the unit is the canonical map witnessing this.
-
-\emph{Counit} $\varepsilon\colon \Generate \circ \Detect \Rightarrow \id_{\mathsf{Claim}}$. For a raw claim $\hat{a}$, the counit $\varepsilon_{\hat{a}}\colon \Generate(\Detect(\hat{a})) \to \hat{a}$ maps the re-generated version of $\hat{a}$ (after detection and re-generation) back to $\hat{a}$. This is the ``verification map'': it witnesses that re-generating from the detected semantic type produces a claim equivalent to the original (when the original is non-hallucinated).
-
-\emph{Triangle identities}. We must verify:
-\begin{enumerate}[nosep]
-  \item $\varepsilon_{\Generate(A)} \circ \Generate(\eta_A) = \id_{\Generate(A)}$: generating from $A$, detecting the result, re-generating, and then applying the counit recovers the original generation. This holds because generation from a fully-specified type is deterministic (up to the choice of inhabitant).
-  \item $\Detect(\varepsilon_{\hat{a}}) \circ \eta_{\Detect(\hat{a})} = \id_{\Detect(\hat{a})}$: detecting $\hat{a}$, generating from the detected type, re-detecting, and applying the unit recovers the original detection. This holds because detection is idempotent on well-typed claims.
-\end{enumerate}
+(1) and (2) follow from the definitions of $\Detect$ and $\Generate$: generation from type $A$ produces a term $a : A$, and detection of $a$ recovers $A$. The maps $\eta_A$ and $\varepsilon_{\hat{a}}$ are defined pointwise. (3) is a structural observation. (4) follows from the fact that for verified claims, $\Generate(\Detect(\hat{a}))$ produces a term equivalent to $\hat{a}$ (both inhabit the same type with the same derivation structure).
 \end{proof}
+
+\begin{remark}[Status of the Triangle Identities]\label{rem:triangle-status}
+The triangle identities
+\begin{enumerate}[nosep]
+  \item $\varepsilon_{\Generate(A)} \circ \Generate(\eta_A) = \id_{\Generate(A)}$,
+  \item $\Detect(\varepsilon_{\hat{a}}) \circ \eta_{\Detect(\hat{a})} = \id_{\Detect(\hat{a})}$,
+\end{enumerate}
+are plausible---identity (1) holds when generation from a fully-specified type is deterministic, and identity (2) holds when detection is idempotent on well-typed claims---but we have not verified them in full generality. In particular, generation may choose among multiple inhabitants of a type, breaking strict determinism. The conjecture is well-motivated but not yet proven. Subsequent results that depend on the adjunction (\Cref{thm:monad-laws}, \Cref{thm:completeness}) should therefore be understood as conditional on \Cref{thm:adjunction}.
+\end{remark}
 
 \begin{remark}[Semantic Content of the Adjunction]\label{rem:adjunction-meaning}
 The adjunction $\Generate \dashv \Detect$ encodes the following duality:
@@ -473,7 +487,7 @@ $(\SemanticT, \eta, \mu)$ satisfies the monad laws:
 \end{theorem}
 
 \begin{proof}
-These follow formally from the triangle identities of the adjunction $\Generate \dashv \Detect$ (\Cref{thm:adjunction}). Explicitly:
+These follow formally from the triangle identities of the conjectured adjunction $\Generate \dashv \Detect$ (\Cref{thm:adjunction}); consequently, this theorem is conditional on \Cref{thm:adjunction}. Explicitly:
 
 \emph{Left unit.} $\mu_A \circ \eta_{\SemanticT(A)} = \mu_A \circ \eta_{\Detect(\Generate(A))}$. The unit $\eta$ takes the already-verified type $\Detect(\Generate(A))$ and re-generates and re-detects it. The multiplication $\mu$ then collapses the double verification. By the triangle identity (1) of the adjunction, this composite is the identity.
 
@@ -540,38 +554,37 @@ We now identify the ambient mathematical universe in which both detection and ge
 \subsection{Construction of \texorpdfstring{$\mathcal{S}\mathrm{em}_\infty$}{Sem-infinity}}
 
 \begin{definition}[$\infty$-Topos of Semantic Types]\label{def:sem-topos}
-The \textbf{$\infty$-topos of semantic types} $\mathcal{S}\mathrm{em}_\infty$ is an $(\infty,1)$-category with the following structure:
+Let $\mathcal{C}$ denote the knowledge complex $\mathcal{K}_\bullet$ viewed as a small $(\infty,1)$-category (the simplicial nerve of the poset of simplices), equipped with the canonical Grothendieck topology $\tau$ in which covers are jointly surjective families of justifications. The \textbf{$\infty$-topos of semantic types} is defined as the $(\infty,1)$-category of presheaves:
+\[
+\mathcal{S}\mathrm{em}_\infty \;:=\; \PSh(\mathcal{C}) \;=\; [\mathcal{C}^{\op},\; \Grpd]
+\]
+Concretely:
 \begin{enumerate}[nosep]
-  \item \textbf{Objects}: Semantic types (homotopy types) $A, B, C, \ldots \in \Type$.
-  \item \textbf{Morphisms}: Certified derivations $\delta\colon \Gamma \vdash f : A \to B$, forming the mapping space $\Map(A, B)$.
+  \item \textbf{Objects}: Functors $A\colon \mathcal{C}^{\op} \to \Grpd$, i.e., semantic types assigning to each context $\Gamma$ the $\infty$-groupoid $A(\Gamma)$ of valid claims of type $A$ in context $\Gamma$.
+  \item \textbf{Morphisms}: Natural transformations between presheaves, i.e., certified derivations $\delta\colon \Gamma \vdash f : A \to B$, forming the mapping space $\Map(A, B)$.
   \item \textbf{$n$-morphisms}: Higher coherences between derivations, forming the full $\infty$-groupoid $\Map(A, B)$.
   \item \textbf{Internal logic}: Homotopy Type Theory (HoTT).
 \end{enumerate}
 \end{definition}
 
 \begin{theorem}[$\mathcal{S}\mathrm{em}_\infty$ is an $\infty$-Topos]\label{thm:sem-topos}
-$\mathcal{S}\mathrm{em}_\infty$ satisfies the Giraud--Lurie axioms for an $\infty$-topos:
-\begin{enumerate}[nosep]
-  \item \textbf{Colimits}: $\mathcal{S}\mathrm{em}_\infty$ has all small colimits (coproducts = disjunctions, pushouts = amalgamation of claims).
-  \item \textbf{Coproducts are disjoint}: $A + B$ has no unintended identifications.
-  \item \textbf{Colimits are universal}: pullback preserves colimits (context change preserves disjunctions).
-  \item \textbf{Groupoid objects are effective}: every internal groupoid in $\mathcal{S}\mathrm{em}_\infty$ arises as the \v{C}ech nerve of an effective epimorphism.
-  \item \textbf{Subobject classifier}: There exists an object $\Omega$ classifying $(-1)$-truncated objects (propositions).
-\end{enumerate}
+$\mathcal{S}\mathrm{em}_\infty = \PSh(\mathcal{C})$ is an $\infty$-topos.
 \end{theorem}
 
-\begin{proof}[Proof sketch]
-We verify each axiom.
+\begin{proof}
+By Lurie \cite[Proposition~6.1.1.1]{lurie2009higher}, for any small $(\infty,1)$-category $\mathcal{C}$, the presheaf category $\PSh(\mathcal{C}) = [\mathcal{C}^{\op}, \Grpd]$ is an $\infty$-topos. Since $\mathcal{C}$ is the simplicial nerve of the knowledge complex (a small category), $\mathcal{S}\mathrm{em}_\infty = \PSh(\mathcal{C})$ is an $\infty$-topos.
 
-(1) Colimits are constructed as in HoTT: the coproduct $A + B$ is the sum type, the pushout is the higher inductive type $A \sqcup_C B$. These exist in any model of HoTT.
+For concreteness, we verify the Giraud--Lurie axioms are satisfied in $\PSh(\mathcal{C})$:
 
-(2) Disjointness of coproducts: in HoTT, $\mathsf{inl}(a) =_{A+B} \mathsf{inr}(b)$ is empty for all $a : A$, $b : B$, by the encode-decode method.
+(1) \emph{Colimits.} Presheaf categories have all small colimits, computed pointwise. Coproducts correspond to disjunctions, pushouts to amalgamation of claims.
 
-(3) Universality of colimits: this follows from the descent property of HoTT, which is equivalent to the univalence axiom.
+(2) \emph{Disjointness of coproducts.} In $\PSh(\mathcal{C})$, coproducts are disjoint because they are computed pointwise in $\Grpd$, where coproducts are disjoint.
 
-(4) Effective groupoid objects: by the univalence axiom, every groupoid object in $\mathcal{S}\mathrm{em}_\infty$ is the automorphism groupoid of some type, hence is the \v{C}ech nerve of the point inclusion.
+(3) \emph{Universality of colimits.} Colimits in $\PSh(\mathcal{C})$ are universal because pullbacks distribute over colimits pointwise.
 
-(5) Subobject classifier: $\Omega = \Prop$ (the type of mere propositions) classifies $(-1)$-truncated types, i.e., propositions.
+(4) \emph{Effective groupoid objects.} Every groupoid object in $\PSh(\mathcal{C})$ is the \v{C}ech nerve of an effective epimorphism, as shown in \cite[Proposition~6.1.2.11]{lurie2009higher}.
+
+(5) \emph{Subobject classifier.} $\Omega = \Prop$ (the presheaf of $(-1)$-truncated types) classifies monomorphisms.
 \end{proof}
 
 \subsection{Internal Logic and HoTT}\label{sec:internal-logic}
@@ -719,11 +732,15 @@ Compositional drift & $\Hol \neq \id$ & flat connection obstruction \\
 \bottomrule
 \end{tabular}
 \end{center}
-The homological and cohomological descriptions are related by the Universal Coefficient Theorem:
+When the semantic sheaf $\mathcal{F}$ is locally constant (i.e., a local system), the sheaf cohomology $H^n(\mathcal{K}_\bullet, \mathcal{F})$ can be related to the singular cohomology $H^n(\mathcal{K}_\bullet; \mathbb{Z})$ via the Universal Coefficient Theorem:
 \[
 0 \to \mathrm{Ext}^1(H_{n-1}(\mathcal{K}_\bullet), \mathbb{Z}) \to H^n(\mathcal{K}_\bullet; \mathbb{Z}) \to \Hom(H_n(\mathcal{K}_\bullet), \mathbb{Z}) \to 0
 \]
 \end{theorem}
+
+\begin{remark}[Local Constancy Hypothesis]\label{rem:local-constancy}
+The connection between the sheaf cohomology $H^n(\mathcal{K}_\bullet, \mathcal{F})$ and the singular cohomology $H^n(\mathcal{K}_\bullet; \mathbb{Z})$ via the Universal Coefficient Theorem requires the semantic sheaf $\mathcal{F}$ to be \emph{locally constant} (a local system). A locally constant sheaf $\mathcal{F}$ on $\mathcal{K}_\bullet$ assigns the same stalk $\mathcal{F}_x \cong M$ to all points $x$ in each connected component, with monodromy action $\pi_1(\mathcal{K}_\bullet, x) \to \Aut(M)$. When $\mathcal{F}$ is not locally constant---for instance, when different regions of the knowledge complex have qualitatively different semantic content---the sheaf cohomology $H^n(\mathcal{K}_\bullet, \mathcal{F})$ and the singular cohomology $H^n(\mathcal{K}_\bullet; \mathbb{Z})$ may differ. We adopt the local constancy of $\mathcal{F}$ as an additional hypothesis in the cohomological refinement. This is a reasonable simplification when the knowledge base is topically uniform, but may need to be relaxed for heterogeneous knowledge bases.
+\end{remark}
 
 \begin{proof}
 The Universal Coefficient Theorem provides the exact sequence relating homology and cohomology. The specific identifications follow from the definitions:
@@ -733,6 +750,39 @@ The Universal Coefficient Theorem provides the exact sequence relating homology 
   \item Higher $H^n(\mathcal{F})$ classify higher obstructions, matching higher $H_n$ and $\pi_n$.
   \item Compositional drift corresponds to failure of the connection to be flat, i.e., non-vanishing curvature of the semantic fibration, which is an obstruction in differential cohomology.
 \end{itemize}
+\end{proof}
+
+\subsection{The Five-Fold Detection-Generation Duality}
+
+\begin{proposition}[Five-by-Five Duality]\label{prop:five-by-five}
+The five hallucination types classified by the HHC (\Cref{thm:hhc-classification-review}) stand in precise duality with the five generation principles of the HoTT-LM (\Cref{sec:review-generation}). Each generation principle is the constructive dual of its corresponding detection criterion:
+\begin{center}
+\begin{tabular}{p{3cm}lp{3.2cm}p{4.5cm}}
+\toprule
+\textbf{Hallucination Type} & \textbf{Invariant} & \textbf{Generation Principle} & \textbf{How It Prevents Hallucination} \\
+\midrule
+Circular reasoning & $\pi_1 \neq 0$ & Type inhabitation & Proof search cannot produce non-contractible loops \\
+Unjustified inference & $\pi_0$ & Abstention on $\mathsf{0}$ & If types are in different components, inhabitation fails; system abstains \\
+Inconsistent justifications & $\pi_2 \neq 0$ & Certified derivations & Derivation tree makes justification explicit; conflation impossible \\
+Fabricated entity chain & $H_n \neq 0$ & Context as fibration & Fibered context prevents locally-consistent-but-globally-unfounded chains \\
+Compositional drift & $\Hol \neq \id$ & Attention as limit & Categorical attention detects non-trivial transport; fails on incoherent diagrams \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{proposition}
+
+\begin{proof}
+We verify each row.
+
+(1) \emph{Circular reasoning vs.\ type inhabitation.} A circular argument corresponds to a non-contractible loop $\gamma$ in $\pi_1(\mathcal{K}_\bullet)$. Type inhabitation search builds a derivation tree $\delta$, which is a tree (acyclic by definition). Since trees have $\pi_1 = 0$, the inhabitation search cannot produce non-contractible loops.
+
+(2) \emph{Unjustified inference vs.\ abstention.} An unjustified inference connects facts in different connected components ($\pi_0$ obstruction). If the goal type $A$ lies in a different component from the available evidence, $A$ is uninhabited in the given context, and the generation system returns $\bot$.
+
+(3) \emph{Inconsistent justifications vs.\ certified derivations.} Inconsistent justifications arise when two incompatible paths $p, q : a =_A b$ exist ($\pi_2$ obstruction). Certified derivations make the justification path explicit: the derivation tree records exactly which path was used, making implicit conflation impossible.
+
+(4) \emph{Fabricated chains vs.\ context as fibration.} A fabricated entity chain is a cycle $\sigma$ with $[\sigma] \neq 0 \in H_n$. When context is modeled as a fibration (dependent telescope), each new claim must be justified relative to the fiber over the current context, preventing locally plausible but globally unfounded chains.
+
+(5) \emph{Compositional drift vs.\ attention as limit.} Compositional drift is non-trivial holonomy: transporting a term around a loop changes its meaning. Categorical attention, modeled as a weighted limit, detects incoherent diagrams---the limit fails to exist when the diagram does not commute, which is precisely the case when holonomy is non-trivial.
 \end{proof}
 
 
@@ -802,6 +852,20 @@ By construction, $\Generate$ returns $(a, \delta)$ only if:
 A term $a : A$ with valid derivation $\delta$ has a complete justification chain traceable to grounded sources (the leaves of $\delta$ are $\mathsf{AxiomD}(\text{src})$ nodes). Therefore $a$ corresponds to a trivial homology class $[\sigma] = 0$ (the chain bounds via the derivation tree), hence is not hallucinated by \Cref{thm:hhc-review}.
 \end{proof}
 
+\begin{lemma}[Acyclicity Lemma]\label{lem:acyclicity}
+Let $\hat{a}$ be a claim with corresponding chain $\sigma \in C_n(\mathcal{K}_\bullet)$, and suppose the knowledge complex $\mathcal{K}_\bullet$ has trivial homology in a neighborhood of $\sigma$: $H_k(U; \mathbb{Z}) = 0$ for all $k \geq 1$, where $U \subseteq \mathcal{K}_\bullet$ is the star of $\sigma$. Then the semantic type $A = \Detect(\hat{a})$ is inhabited: there exists a term $a : A$ with a valid derivation $\delta$.
+\end{lemma}
+
+\begin{proof}
+Trivial homology $H_k(U) = 0$ for $k \geq 1$ means $U$ is acyclic: every cycle bounds. In particular, the cycle $\sigma$ (which lies in $\ker \partial_n$ by the assumption that $\Detect$ finds no obstructions) is in $\im(\partial_{n+1})$. Let $\tau \in C_{n+1}(\mathcal{K}_\bullet)$ satisfy $\partial_{n+1} \tau = \sigma$. The $(n+1)$-chain $\tau$ consists of $(n+1)$-simplices in $\mathcal{K}_\bullet$, each of which represents a grounded justificatory relationship. The derivation tree $\delta$ is constructed by tracing the simplices of $\tau$ back to their vertices (grounded facts): each face of each $(n+1)$-simplex provides a sub-derivation, and $\partial_{n+1} \tau = \sigma$ ensures these sub-derivations compose to yield a complete derivation of $\sigma$.
+
+Since $A$ is the semantic type of $\hat{a}$ and $\sigma$ has a filling $\tau$, the term $a$ constructed from $\tau$ inhabits $A$ with derivation $\delta$ built from the simplicial structure of $\tau$.
+\end{proof}
+
+\begin{remark}\label{rem:acyclicity-hypothesis}
+The acyclicity hypothesis---that $\mathcal{K}_\bullet$ has trivial local homology around the claim---is an additional condition on the knowledge base. It is satisfied when the knowledge base is ``rich enough'' to provide justifications for all valid claims in a neighborhood, but may fail for knowledge bases with systematic gaps. In the completeness theorem below, the implication (ii) $\Rightarrow$ (iii) depends on this lemma.
+\end{remark}
+
 \begin{theorem}[The Completeness Theorem]\label{thm:completeness}
 The combined system $(\Detect, \Generate)$ is \textbf{complete}: the following are equivalent for a claim $\hat{a}$:
 \begin{enumerate}[nosep]
@@ -823,7 +887,7 @@ We prove the equivalences cyclically.
 
 \emph{(i) $\Rightarrow$ (ii)}: By \Cref{thm:detection-completeness} (contrapositive): if $\hat{a}$ is not hallucinated, then $[\sigma] = 0$ for the corresponding chain $\sigma$, so no topological obstructions exist.
 
-\emph{(ii) $\Rightarrow$ (iii)}: If $\Detect(\hat{a}) = (\Gamma, A, \emptyset)$ (no obstructions), then $A$ is inhabited in context $\Gamma$ and the knowledge complex has trivial homology around $\hat{a}$. By the acyclicity corollary of \Cref{thm:hhc-review}, a justification exists, so $\Generate$ can construct $(a, \delta)$ with $a$ representing the same claim as $\hat{a}$.
+\emph{(ii) $\Rightarrow$ (iii)}: If $\Detect(\hat{a}) = (\Gamma, A, \emptyset)$ (no obstructions), then $A$ is inhabited in context $\Gamma$ and the knowledge complex has trivial homology around $\hat{a}$. By the Acyclicity Lemma (\Cref{lem:acyclicity}), the semantic type $A$ is inhabited and a derivation $\delta$ exists, so $\Generate$ can construct $(a, \delta)$ with $a$ representing the same claim as $\hat{a}$. Note that this implication requires the additional hypothesis that $\mathcal{K}_\bullet$ has trivial local homology around the claim (see \Cref{rem:acyclicity-hypothesis}).
 
 \emph{(iii) $\Rightarrow$ (iv)}: If $\Generate(\Detect(\hat{a})) = (a, \delta)$ with $a \cong \hat{a}$, then the counit $\varepsilon_{\hat{a}}$ maps $a$ to $\hat{a}$, which is an isomorphism by the assumption $a \cong \hat{a}$.
 

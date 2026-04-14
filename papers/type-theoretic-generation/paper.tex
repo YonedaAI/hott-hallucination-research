@@ -103,9 +103,9 @@
 \newcommand{\Sem}{\mathbf{Sem}}
 \newcommand{\Lang}{\mathbf{Lang}}
 \newcommand{\Vect}{\mathbf{Vect}}
-\newcommand{\Grpd}{\boldsymbol{\infty}\text{-}\mathbf{Grpd}}
+\newcommand{\Grpd}{\infty\text{-}\mathbf{Grpd}}
 \newcommand{\Set}{\mathbf{Set}}
-\newcommand{\Type}{\mathsf{Type}}
+\newcommand{\Type}{\mathcal{U}}
 \newcommand{\Prop}{\mathsf{Prop}}
 \newcommand{\refl}{\mathsf{refl}}
 \newcommand{\transport}{\mathsf{transport}}
@@ -202,7 +202,7 @@ where:
   \item $A$ is the \emph{semantic type} of the desired response,
   \item $a$ is a \emph{term} (semantic content) inhabiting $A$,
   \item $\Gamma \vdash a : A$ is a \emph{typing judgment} ensuring semantic validity,
-  \item $C(a)$ is a cost function encoding pragmatic preferences (brevity, relevance, style).
+  \item $C(a)$ is a cost function encoding pragmatic preferences (see \Cref{def:cost} below).
 \end{itemize}
 Generation becomes \emph{proof search} in the type theory, and every generated term comes equipped with a \emph{derivation tree} $\delta$ witnessing $\Gamma \vdash a : A$.
 When $A$ is uninhabited---when no valid response exists---the system returns $\bot$ rather than hallucinating.
@@ -218,6 +218,24 @@ Our framework rests on five principles, each with a precise formal statement:
   \item \textbf{Context as Fibration.} The context window is a dependent telescope forming a fibration $p : E \to B$, not a flat sequence (\Cref{sec:fibration}).
   \item \textbf{Attention as Weighted Limit.} Attention computes a weighted limit in $\Sem$ (when it exists) rather than a weighted sum in $\Vect$ (\Cref{sec:attention}).
 \end{enumerate}
+
+\subsection{The Cost Function}\label{subsec:cost}
+
+\begin{definition}[Derivation Cost]\label{def:cost}
+The \emph{cost function} $C : \mathrm{Term} \to \mathbb{N}$ assigns to each well-typed term $a$ the depth of its minimal derivation tree:
+\[
+  C(a) \;=\; \min\bigl\{\, |\delta| \;\big|\; \delta \text{ derives } \Gamma \vdash a : A \,\bigr\}
+\]
+where $|\delta|$ denotes the depth of the derivation tree $\delta$ (the length of the longest root-to-leaf path).
+When the set of derivations is empty (the term does not type-check), we set $C(a) = \infty$.
+\end{definition}
+
+\begin{remark}[Richer Cost Functions]\label{rem:richer-cost}
+The derivation-depth cost is the simplest well-defined choice.
+In practice, one may wish to incorporate pragmatic preferences such as brevity of the rendered natural-language text, stylistic appropriateness, or relevance to the conversational context.
+These can be modeled by replacing $\mathbb{N}$ with a more general ordered monoid and defining $C$ as a weighted combination of derivation depth and pragmatic scores.
+We leave the systematic study of richer cost functions to future work; the results of this paper hold for any cost function satisfying $C(a) < \infty \iff \Gamma \vdash a : A$.
+\end{remark}
 
 \subsection{Related Work}
 
@@ -364,6 +382,21 @@ The only non-structural step is the \textsc{Ground} rule, which requires a looku
 The derivation tree has depth at most $|a|$ (each subterm is checked once), and each step is $O(|A|)$ for type comparison.
 The total cost is $O(|a| \cdot |A|)$, which is polynomial.
 \end{proof}
+
+\begin{remark}[Two-Layer Type Theory: HoTT for Semantics, MLTT for Decision]\label{rem:two-layer}
+A subtlety deserves clarification.
+Full homotopy type theory (HoTT) with the univalence axiom does \emph{not} have a straightforward decidable type-checking algorithm---indeed, giving a computational interpretation to univalence is one of the central motivations for cubical type theory \cite{cohen2018cubical}.
+Our framework employs a \emph{two-layer} approach:
+\begin{enumerate}[nosep]
+  \item \textbf{Semantic layer (HoTT).} The semantic category $\Sem$ and the higher-categorical structure of meaning (path types, higher coherences, univalence) live in HoTT.
+  This layer provides the \emph{model theory}: the mathematical space in which semantic validity is defined.
+  \item \textbf{Decision layer (MLTT / cubical fragment).} The type-checking algorithm and proof search operate in a decidable fragment: either standard Martin-L\"{o}f type theory (MLTT) or a cubical type theory such as that of Cohen et al.\ \cite{cohen2018cubical}.
+  In this fragment, identity types are decidable, type-checking is algorithmic, and the computational content of univalence is available via Glue types.
+\end{enumerate}
+Concretely, \Cref{prop:decidable} applies to the decision layer.
+When a proof obligation involves univalence (e.g., transport along a type equivalence), the decision procedure invokes the cubical interpretation, which provides a computational reduction.
+The semantic layer guarantees that the decision layer is \emph{sound}: every judgment derivable in the cubical fragment is valid in the HoTT model.
+\end{remark}
 
 
 % ============================================================================
@@ -551,18 +584,22 @@ A type $A$ is \emph{uninhabited} in context $\Gamma$ if there is no term $a$ suc
 Equivalently, $A$ is semantically equivalent to $\mathbf{0}$ in context $\Gamma$.
 \end{definition}
 
-\begin{theorem}[Correct Abstention]\label{thm:abstention}
-If type $A$ is uninhabited in context $\Gamma$, then the type-theoretic generation procedure returns $\bot$.
-This is the \emph{correct} response: there is no valid claim of type $A$ given the available knowledge.
+\begin{theorem}[Conditional Correct Abstention]\label{thm:abstention}
+If the depth-bounded search $\mathsf{search}_d(\Gamma, A)$ is \emph{complete} for the type $A$---that is, every derivation of $\Gamma \vdash a : A$ has depth at most $d$---and $A$ is uninhabited in context $\Gamma$, then the type-theoretic generation procedure returns $\bot$.
 \end{theorem}
 
 \begin{proof}
-The proof search procedure (Section~\ref{sec:proof-search}) exhaustively explores all derivation trees up to the search depth $d$.
-If $A$ is uninhabited, no derivation exists at any depth.
-The procedure returns $\bot$ after exhausting the search space.
-By the soundness theorem (\Cref{thm:soundness}), the only alternative to returning $\bot$ would be returning a term $a$ with a valid derivation---but no such term exists.
-Thus $\bot$ is the unique correct response.
+By \Cref{prop:completeness}, if the search is complete at depth $d$, then $\mathsf{search}_d(\Gamma, A)$ finds every inhabitant with a derivation of depth at most $d$.
+If $A$ is uninhabited, no derivation exists at any depth; a fortiori, none exists at depth $d$.
+The procedure returns $\bot$ after exhausting the finite search space at depth $d$.
+By soundness (\Cref{thm:soundness}), the only alternative to $\bot$ would be a term with a valid derivation, but none exists.
 \end{proof}
+
+\begin{remark}[Incompleteness of Abstention]\label{rem:abstention-incomplete}
+When $A$ is uninhabited but the search depth $d$ is insufficient to explore all possible derivation strategies, the procedure still returns $\bot$ (since no inhabitant is found), but for the weaker reason that the search was exhausted rather than that uninhabitedness was established.
+Conversely, when $A$ \emph{is} inhabited but only via derivations of depth greater than $d$, the procedure incorrectly returns $\bot$---a false abstention.
+This is the soundness--completeness tradeoff inherent in bounded search: the procedure is always \emph{sound} (it never returns an invalid term) but may be \emph{incomplete} (it may abstain when a valid answer exists beyond the search horizon).
+\end{remark}
 
 \subsection{The Abstention Spectrum}
 
@@ -702,6 +739,35 @@ The fibration perspective explains several known LLM failure modes:
 % ============================================================================
 \section{Categorical Attention as Weighted Limit}\label{sec:attention}
 
+\subsection{The Semantic Category}\label{subsec:sem-cat}
+
+Before defining categorical attention, we must give a precise definition of the ambient category $\Sem$.
+
+\begin{definition}[The Semantic Category $\Sem$]\label{def:sem-category}
+The \emph{semantic category} $\Sem$ is a locally small $1$-category defined as follows:
+\begin{itemize}[nosep]
+  \item \textbf{Objects.} The objects of $\Sem$ are the closed semantic types $A$ of the type theory $\mathcal{T}_{\Sem}$ (\Cref{def:semtype}), together with their spaces of inhabitants.
+  Formally, $\ob(\Sem) = \{A \in \mathcal{U} \mid A \text{ is a well-formed semantic type}\}$.
+  \item \textbf{Morphisms.} A morphism $f : A \to B$ in $\Sem$ is a closed term $f : \Pi(x : A).\, B$---a type-theoretically well-typed function from $A$ to $B$.
+  Composition is given by function composition in the type theory: $g \circ f = \lambda x.\, g(f(x))$.
+  \item \textbf{Identity.} The identity morphism on $A$ is $\imark_A = \lambda x.\, x : \Pi(x:A).\, A$.
+  \item \textbf{Path structure.} Two morphisms $f, g : A \to B$ are identified when there exists a path $p : f =_{\Pi(x:A).B} g$ in the function type.
+  This endows each hom-set with a groupoid structure, but for the purposes of weighted limits we work at the $1$-categorical level (taking path-components).
+\end{itemize}
+\end{definition}
+
+\begin{remark}[Higher-Categorical Refinement]\label{rem:higher-sem}
+In the full HoTT setting, $\Sem$ is naturally an $(\infty,1)$-category (with the path types providing the higher morphisms).
+For the results of this paper, the $1$-categorical truncation suffices: \Cref{thm:limit-coherence} and \Cref{prop:attention-gap} require only ordinary (co)limits, not homotopy limits.
+A treatment using $(\infty,1)$-categorical weighted limits (in the sense of Lurie \cite{lurie2009}) is left to future work.
+\end{remark}
+
+\begin{definition}[Standing Assumption: $W$-Completeness]\label{ax:w-complete}
+We assume throughout that $\Sem$ is \emph{$W$-complete} for all weight functors $W : \mathcal{I}^{\op} \to \Set$ arising from finite indexing categories $\mathcal{I}$ relevant to the context window.
+Concretely, this means that $\Sem$ admits all finite weighted limits.
+This assumption is justified by the fact that the semantic types include products, function types, and path types, which suffice to construct the required limits \cite{kelly1982}.
+\end{definition}
+
 \subsection{Standard Attention as a Linear Operation}
 
 In the transformer architecture, attention is computed as:
@@ -738,18 +804,23 @@ Explicitly, $\lim^W D$ is (when it exists) the object $L \in \Sem$ equipped with
 for each $i \in \mathcal{I}$, universal among all such families.
 
 \begin{theorem}[Weighted Limit Preserves Coherence]\label{thm:limit-coherence}
-If the diagram $D : \mathcal{I} \to \Sem$ is \emph{coherent} (all diagram morphisms compose consistently) and the weighted limit $\lim^W D$ exists, then the attention output is a semantically valid object in $\Sem$.
-If the diagram is incoherent (some diagram squares do not commute), then $\lim^W D$ does not exist, and the system abstains.
+Assume that $\Sem$ is $W$-complete for the weight $W : \mathcal{I}^{\op} \to \Set$ (i.e., $\Sem$ admits $W$-weighted limits for all diagrams indexed by $\mathcal{I}$; see \Cref{def:sem-category}).
+Then:
+\begin{enumerate}[nosep,label=(\roman*)]
+  \item If the diagram $D : \mathcal{I} \to \Sem$ is \emph{coherent} (all diagram morphisms compose consistently), then the weighted limit $\lim^W D$ exists and is a semantically valid object in $\Sem$.
+  \item If the diagram is incoherent (some diagram squares do not commute), then no cone over $D$ exists, and the system abstains.
+\end{enumerate}
 \end{theorem}
 
 \begin{proof}
-When the diagram is coherent, all required compatibility conditions for the limit cone are satisfiable.
-The limit object $L = \lim^W D$ is then an object of $\Sem$ by construction, and the cone maps $\pi_i : L \to D(i)^{W(i)}$ witness its compatibility with every context element.
-This is a semantically valid object because it type-checks against every constraint imposed by the diagram.
+\emph{(i)} When the diagram is coherent, all required compatibility conditions for the limit cone are satisfiable.
+By the $W$-completeness assumption, the weighted limit $L = \lim^W D$ exists in $\Sem$.
+The cone maps $\pi_i : L \to D(i)^{W(i)}$ witness its compatibility with every context element.
+The limit object is semantically valid because it type-checks against every constraint imposed by the diagram.
 
-When the diagram is incoherent, there exist $i \xrightarrow{f} j \xrightarrow{g} k$ and $i \xrightarrow{h} k$ in $\mathcal{I}$ with $D(g) \circ D(f) \neq D(h)$.
+\emph{(ii)} When the diagram is incoherent, there exist $i \xrightarrow{f} j \xrightarrow{g} k$ and $i \xrightarrow{h} k$ in $\mathcal{I}$ with $D(g) \circ D(f) \neq D(h)$.
 Any cone over $D$ would need to satisfy $\pi_k = D(h) \circ \pi_i$ and $\pi_k = D(g) \circ D(f) \circ \pi_i$ simultaneously, which is impossible.
-Hence no limit exists, and the system correctly abstains rather than producing an incoherent blend.
+Hence no cone (and a fortiori no limit) exists, and the system correctly abstains rather than producing an incoherent blend.
 \end{proof}
 
 \subsection{The Coherence Diagram}
@@ -922,7 +993,13 @@ This exponential worst case is mitigated by:
 
 We present the core Haskell formalization of the type-theoretic generation framework.
 The full executable module is available as \texttt{TypeTheoreticGen.hs}.
-We use GHC extensions \texttt{GADTs}, \texttt{DataKinds}, and \texttt{RankNTypes} to encode dependent types at the Haskell level.
+
+\begin{remark}[Simplified Listings]\label{rem:simplified-listings}
+The code listings in this section are \emph{simplified for exposition}.
+They use GADT-style syntax and idealized type signatures to convey the mathematical structure clearly.
+The accompanying executable Haskell module uses standard algebraic data types with \texttt{deriving} clauses and includes additional cases (e.g., error handling, normalization) omitted here for brevity.
+The full source code is the authoritative reference for implementation details.
+\end{remark}
 
 \subsection{Core Types}
 
@@ -1211,7 +1288,7 @@ C.~Liang and D.~Miller.
 \bibitem{cohen2018cubical}
 C.~Cohen, T.~Coquand, S.~Huber, and A.~M\"{o}rtberg.
 \newblock Cubical type theory: A constructive interpretation of the univalence axiom.
-\newblock \emph{Journal of Automated Reasoning}, 60(2):195--340, 2018.
+\newblock \emph{Journal of Automated Reasoning}, 60(2):195--230, 2018.
 
 \bibitem{kelly1982}
 G.~M.~Kelly.

@@ -180,9 +180,9 @@
 % ABSTRACT
 % ============================================================================
 \begin{abstract}
-We establish a rigorous, complete classification of large language model (LLM) hallucination failure modes through the lens of algebraic topology and homotopy type theory (HoTT). Our central diagnosis is that current LLM architectures implement a functor $F: \Lang \to \Vect_{\R}$ from the category of linguistic expressions to finite-dimensional real vector spaces, thereby collapsing the higher categorical structure of semantic space---which is naturally an $\infty$-groupoid with non-trivial homotopy groups---into a contractible codomain where all topological obstructions vanish identically. We prove that this structural collapse is the root cause of hallucination.
+We establish a rigorous classification of large language model (LLM) hallucination failure modes through the lens of algebraic topology and homotopy type theory (HoTT). Our central diagnosis is that current LLM architectures implement a functor $F: \Lang \to \Vect_{\R}$ from the category of linguistic expressions to finite-dimensional real vector spaces, thereby collapsing the higher categorical structure of semantic space---which is naturally an $\infty$-groupoid with non-trivial homotopy groups---into a contractible codomain where all topological obstructions vanish identically. We prove that this structural collapse is the root cause of hallucination.
 
-We develop five rigorous proof cases showing that each fundamental hallucination type corresponds to a specific topological invariant: \textbf{(1)}~circular reasoning detected by $\pi_1 \neq 0$; \textbf{(2)}~unjustified inference detected by $\pi_0$ (disconnection); \textbf{(3)}~inconsistent justifications detected by $\pi_2$ (incoherent 2-cells); \textbf{(4)}~fabricated entity chains detected by $H_n \neq 0$ (homological holes); and \textbf{(5)}~compositional drift detected by non-trivial holonomy on the semantic fibration. We prove the Fundamental Obstruction Theorem: no faithful functor exists from a semantically non-trivial category to a contractible codomain. We formulate the Univalence Constraint showing that statistical similarity does not entail semantic equivalence. We bridge theory to practice via persistent homology on Vietoris--Rips filtrations and provide a complete Haskell formalization with executable detectors for all five hallucination types.
+We develop five proof cases showing that each fundamental hallucination type corresponds to a specific topological invariant: \textbf{(1)}~circular reasoning detected by $\pi_1 \neq 0$; \textbf{(2)}~unjustified inference detected by $\pi_0$ (disconnection); \textbf{(3)}~inconsistent justifications detected by $\pi_2$ (incoherent 2-cells); \textbf{(4)}~fabricated entity chains detected by $H_n \neq 0$ (homological holes); and \textbf{(5)}~compositional drift conjectured to correspond to non-trivial holonomy on the semantic fibration. We prove the Fundamental Obstruction Theorem: no faithful functor exists from a semantically non-trivial category to a contractible codomain. We formulate the Univalence Constraint showing that statistical similarity does not entail semantic equivalence. We bridge theory to practice via persistent homology on Vietoris--Rips filtrations and provide a Haskell formalization with executable detectors for all five hallucination types.
 
 \medskip\noindent\textbf{Keywords:} Homotopy Type Theory, Algebraic Topology, LLM Hallucination, $\infty$-Groupoids, Persistent Homology, Simplicial Complexes, Univalence, Categorical Semantics, Functorial Semantics
 \end{abstract}
@@ -229,7 +229,7 @@ This paper makes the following contributions:
 \begin{enumerate}[nosep]
   \item We formalize semantic meaning as a homotopy type (an $\infty$-groupoid) and construct the simplicial knowledge complex $K_\bullet$ whose homology detects hallucination (\cref{sec:foundations}).
 
-  \item We prove five complete proof cases establishing a bijection between hallucination types and homotopy-theoretic invariants (\cref{sec:five-cases}): circular reasoning ($\pi_1$), unjustified inference ($\pi_0$), inconsistent justifications ($\pi_2$), fabricated entity chains ($H_n$), and compositional drift (holonomy).
+  \item We prove four proof cases and provide a conjectural fifth, establishing a correspondence between hallucination types and homotopy-theoretic invariants (\cref{sec:five-cases}): circular reasoning ($\pi_1$), unjustified inference ($\pi_0$), inconsistent justifications ($\pi_2$), fabricated entity chains ($H_n$), and compositional drift (holonomy, conjectural).
 
   \item We prove the Fundamental Obstruction Theorem: no faithful functor from a semantically non-trivial category to a contractible codomain exists (\cref{sec:obstruction}).
 
@@ -237,7 +237,7 @@ This paper makes the following contributions:
 
   \item We bridge theory to practice via persistent homology on Vietoris--Rips filtrations of embedding spaces (\cref{sec:persistent}).
 
-  \item We provide a complete, executable Haskell formalization with GADT-based semantic types and all five topological obstruction detectors (\cref{sec:haskell}).
+  \item We provide an executable Haskell formalization with all five topological obstruction detectors (\cref{sec:haskell}).
 \end{enumerate}
 
 \subsection{Related Work}
@@ -316,6 +316,11 @@ The \emph{semantic category} $\Sem$ is the $(\infty,1)$-category with:
 \end{itemize}
 \end{definition}
 
+\begin{remark}[Categorical Conventions]
+\label{rem:categorical-conventions}
+Throughout this paper, $\Sem$ is defined as an $(\infty,1)$-category (\cref{def:sem}), in which morphisms represent directed entailment and are not generally invertible. However, the homotopy-theoretic arguments in \cref{sec:five-cases}---particularly those involving $\pi_n$ and holonomy---require passage to the \emph{core groupoid} $\Sem^{\mathrm{gpd}}$, the maximal sub-$\infty$-groupoid obtained by restricting to invertible morphisms (equivalences). This is standard practice: any $(\infty,1)$-category $\mathcal{C}$ has a core $\mathcal{C}^{\simeq}$ that is an $\infty$-groupoid, and the homotopy groups $\pi_n(\mathcal{C})$ are defined as $\pi_n(\mathcal{C}^{\simeq})$. When we write $\pi_n(\Sem)$, we mean $\pi_n(\Sem^{\mathrm{gpd}})$. The full $(\infty,1)$-category structure of $\Sem$ is relevant for directed inference (entailment that is not reversible), while the core groupoid captures the equivalence structure needed for homotopy invariant computations. This distinction is important: semantic entailment $A \vdash B$ need not be invertible ($B \vdash A$ may fail), so $\Sem$ is genuinely an $(\infty,1)$-category, not an $\infty$-groupoid. The five proof cases in \cref{sec:five-cases} detect obstructions in $\Sem^{\mathrm{gpd}}$ that are invisible to vector space representations.
+\end{remark}
+
 \begin{definition}[Context as Dependent Telescope]
 \label{def:context}
 A \emph{context} is a dependent telescope:
@@ -357,13 +362,15 @@ The functor $F$ is not faithful: there exist distinct morphisms $f, g: \Gamma \t
 Consider two distinct justifications for the same conclusion---for example, proving the Pythagorean theorem via similar triangles ($f$) versus via area dissection ($g$). These are distinct 1-cells in the semantic $\infty$-groupoid (they carry different higher-dimensional coherence data: the geometric content of the proofs differs). However, both map to overlapping embedding regions in $\Vect_{\R}$, since the distributional representations of ``the Pythagorean theorem holds'' arrived at by either proof are nearly identical. Thus $F(f) = F(g)$ while $f \neq g$.
 \end{proof}
 
-\begin{proposition}[Contractibility of $\Vect$]
+\begin{proposition}[Homotopical Triviality of $\Vect$ for Semantic Purposes]
 \label{prop:contractible}
-The $\infty$-groupoid completion of $\Vect_{\R}^{\mathrm{fin}}$, viewed as a topological space via its nerve, is contractible: $\pi_n(|\mathcal{N}(\Vect_{\R}^{\mathrm{fin}})|) = 0$ for all $n \geq 0$.
+The category $\Vect_{\R}^{\mathrm{fin}}$, viewed as an $(\infty,1)$-category, has contractible mapping spaces: for any two objects $V, W$, the space $\Hom_{\Vect}(V, W)$ is either empty or contractible. In particular, the homotopy invariants $\pi_k$ for $k \geq 1$ that are relevant to the semantic embedding (those of mapping spaces between fixed objects) are trivial.
 \end{proposition}
 
 \begin{proof}
-Every object in $\Vect_{\R}^{\mathrm{fin}}$ is isomorphic to $\R^k$ for some $k \in \N$. The classifying space $B\mathrm{GL}_n(\R)$ has homotopy type determined by $\mathrm{GL}_n(\R)$, which is connected (having two connected components, but the identity component is contractible via scaling). More precisely, the nerve of the groupoid core of $\Vect_{\R}^{\mathrm{fin}}$ is equivalent to $\coprod_{n \geq 0} B\mathrm{GL}_n(\R)$, and the category itself, being equivalent to the walking linear isomorphism, has a contractible nerve when we include the zero morphisms. The key point is that $\Vect_{\R}^{\mathrm{fin}}$ is a symmetric monoidal category with direct sum providing homotopy-theoretic triviality: every loop $\gamma$ in the nerve can be contracted by scaling $t \cdot \gamma$ for $t \in [0,1]$, since scalar multiplication provides a null-homotopy.
+For fixed finite-dimensional vector spaces $V$ and $W$, the space of linear maps $\Hom(V, W) \cong \R^{\dim(V) \cdot \dim(W)}$ is a vector space, hence contractible (it deformation-retracts to the origin via $t \mapsto t \cdot f$ for $t \in [0,1]$). In particular, $\pi_k(\Hom(V, W)) = 0$ for all $k \geq 0$.
+
+We note that the \emph{core groupoid} of $\Vect_{\R}^{\mathrm{fin}}$ is \emph{not} contractible: its classifying space is $\coprod_{n \geq 0} B\mathrm{GL}_n(\R)$, which carries non-trivial topology (e.g., $\pi_1(B\mathrm{GL}_n(\R)) \cong \Z/2$ for $n \geq 1$ via the determinant, and $B\mathrm{GL}_n(\R)$ supports Stiefel--Whitney classes). However, what matters for the LLM embedding is that the functor $F: \Sem \to \Vect_{\R}^{\mathrm{fin}}$ maps semantic morphisms to \emph{linear maps}, and the space of linear maps between any two fixed vector spaces is contractible. Thus any two parallel semantic morphisms $f, g: A \to B$ with $F(f), F(g) \in \Hom(F(A), F(B))$ are connected by a canonical path in the codomain, destroying the distinction between them. The induced map $F_*: \pi_k(\Sem^{\mathrm{gpd}}) \to \pi_k(\Vect_{\R}^{\mathrm{fin}})$ sends all higher homotopy information of semantically relevant mapping spaces to zero.
 \end{proof}
 
 \begin{proposition}[Non-Contractibility of $\Sem$]
@@ -647,23 +654,25 @@ An LLM generates a biography of a fictional scientist: ``Dr.\ X studied at MIT, 
 \subsection{Case 5: Compositional Drift (Holonomy)}
 \label{sec:case5}
 
-\begin{proposition}[Compositional Drift as Non-Trivial Holonomy]
-\label{prop:case5}
-Transport along context changes $\gamma$ versus $\gamma'$ arriving at different values constitutes non-trivial holonomy on the semantic fibration.
-\end{proposition}
+\begin{conjecture}[Compositional Drift as Non-Trivial Holonomy]
+\label{conj:case5}
+Compositional drift corresponds to non-trivial holonomy on the semantic fibration: transport along a loop in context space $B$ yields a non-identity automorphism of the fiber.
+\end{conjecture}
 
-\begin{proof}
-\textbf{Setup.} Consider the semantic fibration $p: E \to B$ (\cref{def:fibration}) with a connection $\nabla$ providing parallel transport. Let $a : A(\gamma)$ be a claim in the fiber over context $\gamma$, and let $\ell$ be a loop in context space $B$ based at $\gamma$.
+We provide the following heuristic argument. The formal construction of an Ehresmann connection on the semantic fibration---in particular, specifying the horizontal distribution (context-preserving meaning shifts) and verifying the lifting property---is left to future work.
 
-\textbf{Parallel transport.} The connection $\nabla$ allows us to transport the claim $a$ along the loop $\ell$:
+\begin{quote}
+\textbf{Heuristic argument.} Consider the semantic fibration $p: E \to B$ (\cref{def:fibration}). Suppose a connection $\nabla$ exists providing parallel transport. Let $a : A(\gamma)$ be a claim in the fiber over context $\gamma$, and let $\ell$ be a loop in context space $B$ based at $\gamma$.
+
+The connection $\nabla$ would allow us to transport the claim $a$ along the loop $\ell$:
 \[
 \transport_\ell(a) : A(\gamma).
 \]
 If $\transport_\ell(a) = a$, the transport around the loop returns us to the same claim---the meaning is preserved under cyclic context modification.
 
-\textbf{Non-trivial holonomy.} If $\transport_\ell(a) \neq a$, then the loop $\ell$ has changed the meaning of the claim. This is \emph{compositional drift}: a sequence of individually minor context modifications that collectively alter the meaning of a claim.
+If $\transport_\ell(a) \neq a$, then the loop $\ell$ has changed the meaning of the claim. This is \emph{compositional drift}: a sequence of individually minor context modifications that collectively alter the meaning of a claim.
 
-\textbf{The holonomy group.} The holonomy group at $\gamma$ is:
+The holonomy group at $\gamma$ would be:
 \[
 \mathrm{Hol}(\nabla, \gamma) = \{ \transport_\ell \mid \ell \text{ is a loop based at } \gamma \} \subseteq \mathrm{Aut}(A(\gamma)).
 \]
@@ -679,7 +688,12 @@ A(\gamma) \ni a \arrow[r, "\transport_{\gamma \to \gamma_1}"] \arrow[d, phantom,
 \]
 
 \textbf{Why LLMs generate this.} The embedding functor $F$ maps the fiber $A(\gamma)$ to a subspace of $\R^d$. Parallel transport in $\Vect_{\R}$ is trivial (all fibers are canonically isomorphic via linear maps), so $F(\mathrm{Hol}(\nabla, \gamma)) = \{\id\}$. The model cannot detect non-trivial holonomy---it treats all context loops as meaning-preserving, when in fact they may silently alter semantics.
-\end{proof}
+\end{quote}
+
+\begin{remark}[On the Formalization of Case~5]
+\label{rem:case5-formalization}
+A full formalization of Case~5 would require: (i)~constructing an explicit Ehresmann connection on the semantic fibration, where horizontal lifts correspond to context-preserving meaning shifts; (ii)~verifying that the induced parallel transport is well-defined (path-independent within each horizontal leaf); and (iii)~computing the holonomy group. The analogous construction for fiber bundles in differential geometry is classical (cf.\ Kobayashi--Nomizu), but its adaptation to the $(\infty,1)$-categorical setting of $\Sem$ requires further foundational work. The empirical evidence for compositional drift in LLMs is robust (see \cref{ex:drift}), and we expect that a formal connection can be constructed using the language of $\infty$-topoi~\cite{lurie2009}.
+\end{remark}
 
 \begin{example}[Compositional Drift in Practice]
 \label{ex:drift}
@@ -906,13 +920,15 @@ This is the standard long exact sequence of the pair $(L_\bullet, K_\bullet)$ in
 \section{Haskell Formalization}
 \label{sec:haskell}
 
-We provide a complete Haskell formalization of the topological hallucination detection framework. The code uses GADTs and DataKinds to encode the type-theoretic structure at the Haskell type level, ensuring that many invariants are statically checked.
+We provide a Haskell formalization of the topological hallucination detection framework. The code listings below show the idealized type-theoretic structure; the companion executable module \texttt{TopologicalDetection.hs} uses a simplified string-based representation for computational tractability within Haskell's type system. The full GADT encoding with dependent type indices (as shown in the listings) would require a dependently-typed language such as Agda or Idris for complete static enforcement of the semantic invariants.
 
-\subsection{Semantic Types as GADTs}
+\subsection{Semantic Types (Idealized)}
 
-The core semantic types mirror \cref{def:semtype}:
+The idealized semantic types mirror \cref{def:semtype}:
 
-\begin{lstlisting}[caption={Semantic types and terms.}]
+\begin{lstlisting}[caption={Semantic types and terms (idealized GADT encoding).}]
+-- Idealized: in the companion code, SemTerm endpoints
+-- are represented as String for Haskell compatibility.
 data SemType where
   Entity   :: String -> SemType
   Prop     :: String -> SemType
@@ -932,21 +948,26 @@ data SemTerm where
   Hallucinated :: String -> SemTerm
 \end{lstlisting}
 
+\begin{remark}[Code Correspondence]
+\label{rem:code-correspondence}
+The companion Haskell module \texttt{TopologicalDetection.hs} implements all five detectors and the type-checking judgment. Due to Haskell's lack of full dependent types, the implementation uses \texttt{String} identifiers where the idealized version uses \texttt{SemTerm} endpoints (e.g., \texttt{PathType SemType String String} rather than \texttt{PathType SemType SemTerm SemTerm}). The GADT and DataKinds extensions are declared for the algebraic data type definitions but do not enforce the full type-theoretic invariants at compile time. The semantic content and detection logic are faithful to the paper; only the static type-level guarantees are weaker.
+\end{remark}
+
 \subsection{The Five Topological Obstruction Detectors}
 
 Each detector implements the corresponding proof case from \cref{sec:five-cases}:
 
-\begin{lstlisting}[caption={Topological obstruction types.}]
+\begin{lstlisting}[caption={Topological obstruction types (companion code uses String).}]
 data TopologicalObstruction
-  = MissingPath SemTerm SemTerm
+  = MissingPath String String
     -- ^ pi_0 obstruction: no 1-cell connects these terms
-  | NonContractibleLoop [SemTerm]
+  | NonContractibleLoop [String]
     -- ^ pi_1 obstruction: circular reasoning
-  | IncoherentPaths SemTerm SemTerm PathEvidence PathEvidence
+  | IncoherentPaths String String PathEvidence PathEvidence
     -- ^ pi_2 obstruction: incompatible justifications
-  | HomologicalHole Int [SemTerm]
+  | HomologicalHole Int [String]
     -- ^ H_n obstruction: n-cycle with no filling
-  | TransportAnomaly SemTerm SemTerm PathEvidence
+  | TransportAnomaly String String String
     -- ^ Holonomy obstruction: compositional drift
 \end{lstlisting}
 
@@ -954,41 +975,38 @@ data TopologicalObstruction
 
 \begin{lstlisting}[caption={Knowledge complex and homology.}]
 data KnowledgeComplex = KnowledgeComplex
-  { vertices :: [SemTerm]
-  , edges    :: [(Int, Int)]
-  , faces    :: [(Int, Int, Int)]
+  { kcVertices  :: [String]
+  , kcEdges     :: [(Int, Int)]
+  , kcTriangles :: [(Int, Int, Int)]
   }
 
--- Boundary operator: partial_1
-boundary1 :: (Int, Int) -> [(Int, Int)]
-boundary1 (i, j) = [(1, j), (-1, i)]
+-- Boundary operator: partial_1 : C_1 -> C_0
+boundary1 :: Chain1 -> Chain0
+boundary1 chain1 = Map.foldlWithKey' addBoundary Map.empty chain1
+  where
+    addBoundary acc (i, j) coeff =
+      Map.insertWith (+) j coeff $
+      Map.insertWith (+) i (-coeff) acc
 
--- Check if a 1-chain is a cycle
-isCycle :: [(Int, (Int, Int))] -> Bool
-isCycle chain =
-  let bd = concatMap (\(n, e) -> map (\(s,v) -> (n*s, v)) (boundary1 e)) chain
-  in all (== 0) (collectCoeffs bd)
-
--- Check if a 1-cycle bounds
-isBoundary :: KnowledgeComplex -> [(Int, (Int, Int))] -> Bool
-isBoundary kc chain =
-  any (\(i,j,k) -> chain `represents` boundary2 (i,j,k)) (faces kc)
+-- Check if a 1-chain is a cycle (in ker partial_1)
+isCycle1 :: Chain1 -> Bool
+isCycle1 chain = all (== 0) (Map.elems (boundary1 chain))
 \end{lstlisting}
 
 \subsection{The Type-Checking Judgment}
 
 \begin{lstlisting}[caption={Type-checking as hallucination detection.}]
 typeCheck :: Context -> SemTerm -> SemType -> Either HallucinationType Bool
-typeCheck ctx (Grounded claim src) (Prop p)
+typeCheck _ctx (Grounded claim _src) (Prop p)
   | claim == p = Right True
   | otherwise  = Left (TypeMismatch claim p)
-typeCheck ctx (Inferred base (Statistical prob)) ty
+typeCheck _ctx (Inferred _base (Statistical prob)) _ty
   = Left (StatisticalNotProof prob)
-typeCheck ctx (Inferred base (Entailment a b)) ty
+typeCheck ctx (Inferred base (Entailment _ _)) ty
   = typeCheck ctx base ty
-typeCheck ctx (PathWitness a b NoEvidence) (PathType ty _ _)
+typeCheck _ctx (PathWitness a b NoEvidence) (PathType _ _ _)
   = Left (MissingPathDerivation a b)
-typeCheck ctx (Hallucinated _) _
+typeCheck _ctx (Hallucinated _) _
   = Left FreeFloating
 typeCheck _ _ _ = Left Unchecked
 \end{lstlisting}
@@ -1008,8 +1026,22 @@ The Hallucination--Homotopy Correspondence is \emph{not} merely an analogy betwe
 \begin{enumerate}[nosep]
   \item Every hallucination has a topological \emph{cause} (a non-trivial invariant);
   \item Every non-trivial topological invariant in semantic space corresponds to a potential hallucination;
-  \item The classification is \emph{complete}: the five cases of \cref{thm:hhc} exhaust the homotopy-theoretic invariants that can obstruct faithful representation.
+  \item We \emph{conjecture} that the classification is complete: the five cases of \cref{thm:hhc} cover the homotopy-theoretic invariants that can obstruct faithful representation (see \cref{conj:completeness}).
 \end{enumerate}
+
+\begin{conjecture}[Completeness of the HHC]
+\label{conj:completeness}
+The five cases of \cref{thm:hhc}---$\pi_0$, $\pi_1$, $\pi_2$, $H_n$, and holonomy---exhaust all hallucination types that arise from topological obstructions.
+\end{conjecture}
+
+\begin{remark}[Evidence for Completeness]
+\label{rem:completeness-evidence}
+The evidence for \cref{conj:completeness} rests on the Postnikov tower of the semantic $\infty$-groupoid $\Sem^{\mathrm{gpd}}$. Recall that any space $X$ admits a Postnikov tower:
+\[
+\cdots \to X_{\langle 2 \rangle} \to X_{\langle 1 \rangle} \to X_{\langle 0 \rangle}
+\]
+where $X_{\langle n \rangle}$ is the $n$-truncation with $\pi_k(X_{\langle n \rangle}) = 0$ for $k > n$. The homotopy type of $X$ is determined by the homotopy groups $\{\pi_n(X)\}_{n \geq 0}$ together with the $k$-invariants (Postnikov invariants) $k_n \in H^{n+2}(X_{\langle n \rangle}; \pi_{n+1}(X))$. Our five cases cover: $\pi_0$ (Case~2), $\pi_1$ (Case~1), $\pi_2$ (Case~3), the integral homology groups $H_n$ (Case~4, which subsumes higher homotopy groups via the Hurewicz theorem in the simply-connected case), and the fibration structure (Case~5, capturing coherence failures under transport). Higher homotopy groups $\pi_k$ for $k \geq 3$ correspond to higher-order coherence failures in justification chains; these are detected by the $H_n$ machinery of Case~4 via the Hurewicz homomorphism $h: \pi_n \to H_n$ (which is an isomorphism when $\pi_k = 0$ for $k < n$). A formal proof of completeness would require showing that the $k$-invariants introduce no hallucination types beyond those captured by the five cases. We leave this to future work.
+\end{remark}
 
 \subsection{The Categorical Attention Problem}
 
@@ -1055,7 +1087,7 @@ The framework suggests five design principles for a hallucination-free language 
 
 We have established a rigorous mathematical framework for understanding and detecting LLM hallucination through algebraic topology and homotopy type theory. The central insight is that hallucination is not a statistical anomaly but a \emph{structural inevitability} arising from the category-theoretic mismatch between the $\infty$-groupoid structure of semantic space and the contractible vector space representations used by current LLMs.
 
-The five proof cases of the Hallucination--Homotopy Correspondence provide a complete classification: circular reasoning ($\pi_1$), unjustified inference ($\pi_0$), inconsistent justifications ($\pi_2$), fabricated entity chains ($H_n$), and compositional drift (holonomy). The Fundamental Obstruction Theorem shows that this is not a deficiency of particular architectures but of any system whose representation space is contractible. The Univalence Constraint formalizes why statistical similarity cannot substitute for semantic equivalence.
+The five proof cases of the Hallucination--Homotopy Correspondence provide a classification---conjectured to be complete (\cref{conj:completeness})---covering circular reasoning ($\pi_1$), unjustified inference ($\pi_0$), inconsistent justifications ($\pi_2$), fabricated entity chains ($H_n$), and compositional drift (holonomy). The Fundamental Obstruction Theorem shows that this is not a deficiency of particular architectures but of any system whose representation space is contractible. The Univalence Constraint formalizes why statistical similarity cannot substitute for semantic equivalence.
 
 The persistent homology bridge provides a practical path from theory to detection: topological features in embedding space, when persistent, signal genuine structural holes corresponding to hallucination-prone regions. The Haskell formalization demonstrates that these concepts are not merely abstract but computationally tractable.
 
@@ -1137,7 +1169,7 @@ A.~Tonks.
 \newblock Relating the Associahedron and the Permutohedron.
 \newblock In \emph{Operads: Proceedings of Renaissance Conferences}, pages 33--36, 1997.
 
-\bibitem{friedman2020}
+\bibitem{friedman2012}
 G.~Friedman.
 \newblock \emph{Survey Article: An Elementary Illustrated Introduction to Simplicial Sets}.
 \newblock \emph{Rocky Mountain Journal of Mathematics}, 42(2):353--424, 2012.

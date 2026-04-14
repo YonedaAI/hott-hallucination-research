@@ -10,3 +10,5 @@ node_modules/
 *.synctex.gz
 *.hi
 *.o
+*.o
+code/*/[A-Z]*[!.]*
