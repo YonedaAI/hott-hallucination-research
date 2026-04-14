@@ -22,7 +22,7 @@ export async function generateMetadata({
     openGraph: {
       title: paper.title,
       description,
-      url: `https://hott-hallucination-research.vercel.app/papers/${params.slug}`,
+      url: `/papers/${params.slug}`,
       images: [
         {
           url: paper.ogImage,

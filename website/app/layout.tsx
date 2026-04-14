@@ -10,8 +10,14 @@ const spaceGrotesk = Space_Grotesk({
   display: 'swap',
 });
 
+// Resolve base URL from Vercel env vars, custom env, or fallback
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
+  || (process.env.VERCEL_PROJECT_PRODUCTION_URL && `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`)
+  || (process.env.VERCEL_URL && `https://${process.env.VERCEL_URL}`)
+  || 'http://localhost:3000';
+
 export const metadata: Metadata = {
-  metadataBase: new URL('https://hott-hallucination-research.vercel.app'),
+  metadataBase: new URL(siteUrl),
   title: {
     default: 'YonedaAI Research Collective — Hallucination is a Theorem',
     template: '%s | YonedaAI Research',
@@ -35,7 +41,6 @@ export const metadata: Metadata = {
     title: 'YonedaAI Research Collective — Hallucination is a Theorem',
     description:
       'A homotopy type theory framework for detecting and preventing LLM hallucination. 75 pages, 21 theorems, 3 verified Haskell modules.',
-    url: 'https://hott-hallucination-research.vercel.app',
     images: [
       {
         url: '/images/og/hott-synthesis-og.png',
